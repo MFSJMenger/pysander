@@ -104,6 +104,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
             PyObject_CallObject((PyObject *) &pysander_InputOptionsType, NULL);
     if (ret == NULL)
         return NULL;
+    // Integers
     ret->igb = PyInt_FromLong(inp.igb);
     ret->alpb = PyInt_FromLong(inp.alpb);
     ret->gbsa = PyInt_FromLong(inp.gbsa);
@@ -113,7 +114,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ret->vdwmeth = PyInt_FromLong(inp.vdwmeth);
     ret->ntb = PyInt_FromLong(inp.ntb);
     ret->ifqnt = PyInt_FromLong(inp.ifqnt);
-
+    // Floats
     ret->extdiel = PyFloat_FromDouble(inp.extdiel);
     ret->intdiel = PyFloat_FromDouble(inp.intdiel);
     ret->rgbmax = PyFloat_FromDouble(inp.rgbmax);
@@ -131,11 +132,11 @@ static PyObject *
 pysander_pme_input(PyObject *self) {
     sander_input inp;
     pme_sander_input(&inp);
-
     pysander_InputOptions *ret = (pysander_InputOptions *)
             PyObject_CallObject((PyObject *) &pysander_InputOptionsType, NULL);
     if (ret == NULL)
         return NULL;
+    // Integers
     ret->igb = PyInt_FromLong(inp.igb);
     ret->alpb = PyInt_FromLong(inp.alpb);
     ret->gbsa = PyInt_FromLong(inp.gbsa);
@@ -145,7 +146,7 @@ pysander_pme_input(PyObject *self) {
     ret->vdwmeth = PyInt_FromLong(inp.vdwmeth);
     ret->ntb = PyInt_FromLong(inp.ntb);
     ret->ifqnt = PyInt_FromLong(inp.ifqnt);
-
+    // Floats
     ret->extdiel = PyFloat_FromDouble(inp.extdiel);
     ret->intdiel = PyFloat_FromDouble(inp.intdiel);
     ret->rgbmax = PyFloat_FromDouble(inp.rgbmax);
@@ -176,6 +177,7 @@ pysanderMethods[] = {
             "Returns a populated SanderEnergy instance and a 3*natom-length\n"
             "list of forces."},
 #endif
+    {NULL}, // sentinel
 };
 
 #if PY_MAJOR_VERSION >= 3
@@ -200,12 +202,17 @@ void initpysander() {
     // Type declarations
     if (PyType_Ready(&pysander_InputOptionsType))
         return;
+    if (PyType_Ready(&pysander_EnergyTermsType))
+        return;
 
+    // Initialize the module
     m = Py_InitModule3("pysander", pysanderMethods,
                 "Python interface into sander energy and force evaluation");
 
     // Now add the types
     Py_INCREF(&pysander_InputOptionsType);
     PyModule_AddObject(m, "InputOptions", (PyObject*) &pysander_InputOptionsType);
+    Py_INCREF(&pysander_EnergyTermsType);
+    PyModule_AddObject(m, "EnergyTerms", (PyObject *) &pysander_EnergyTermsType);
 #endif
 }

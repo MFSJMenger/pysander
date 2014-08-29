@@ -28,23 +28,23 @@ typedef struct {
 
 static void
 pysander_InputOptions_dealloc(pysander_InputOptions* self) {
-    Py_XDECREF(self->igb);
-    Py_XDECREF(self->igb);
-    Py_XDECREF(self->alpb);
-    Py_XDECREF(self->gbsa);
-    Py_XDECREF(self->lj1264);
-    Py_XDECREF(self->ipb);
-    Py_XDECREF(self->inp);
-    Py_XDECREF(self->vdwmeth);
-    Py_XDECREF(self->ntb);
-    Py_XDECREF(self->ifqnt);
+    Py_DECREF(self->igb);
+    Py_DECREF(self->igb);
+    Py_DECREF(self->alpb);
+    Py_DECREF(self->gbsa);
+    Py_DECREF(self->lj1264);
+    Py_DECREF(self->ipb);
+    Py_DECREF(self->inp);
+    Py_DECREF(self->vdwmeth);
+    Py_DECREF(self->ntb);
+    Py_DECREF(self->ifqnt);
 
-    Py_XDECREF(self->extdiel);
-    Py_XDECREF(self->intdiel);
-    Py_XDECREF(self->rgbmax);
-    Py_XDECREF(self->saltcon);
-    Py_XDECREF(self->cut);
-    Py_XDECREF(self->dielc);
+    Py_DECREF(self->extdiel);
+    Py_DECREF(self->intdiel);
+    Py_DECREF(self->rgbmax);
+    Py_DECREF(self->saltcon);
+    Py_DECREF(self->cut);
+    Py_DECREF(self->dielc);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -124,14 +124,14 @@ static PyTypeObject pysander_InputOptionsType = {
     0,                              // tp_as_number
     0,                              // tp_as_sequence
     0,                              // tp_as_mapping
-    0,                              // tp_hash 
+    0,                              // tp_hash
     0,                              // tp_call
     0,                              // tp_str
     0,                              // tp_getattro
     0,                              // tp_setattro
     0,                              // tp_as_buffer
     Py_TPFLAGS_DEFAULT,             // tp_flags
-    "List of sander input options", // tp_doc 
+    "List of sander input options", // tp_doc
     0,		                        // tp_traverse
     0,		                        // tp_clear
     0,		                        // tp_richcompare
@@ -149,6 +149,204 @@ static PyTypeObject pysander_InputOptionsType = {
     0,                              // tp_init
     0,                              // tp_alloc
     (newfunc)pysander_InputOptions_new,// tp_new
+
+};
+
+//#if 0
+// Energy struct
+typedef struct {
+    PyObject_HEAD
+    PyObject *tot;
+    PyObject *vdw;
+    PyObject *elec;
+    PyObject *gb;
+    PyObject *bond;
+    PyObject *angle;
+    PyObject *dihedral;
+    PyObject *vdw_14;
+    PyObject *elec_14;
+    PyObject *constraint;
+    PyObject *polar;
+    PyObject *hbond;
+    PyObject *surf;
+    PyObject *scf;
+    PyObject *disp;
+    PyObject *dvdl;
+    PyObject *angle_ub;
+    PyObject *imp;
+    PyObject *cmap;
+    PyObject *emap;
+    PyObject *les;
+    PyObject *noe;
+    PyObject *pb;
+    PyObject *rism;
+    PyObject *ct;
+    PyObject *amd_boost;
+} pysander_EnergyTerms;
+
+static PyObject *
+pysander_EnergyTerms_new(PyTypeObject *type) {
+    pysander_EnergyTerms *self;
+    self = (pysander_EnergyTerms *)type->tp_alloc(type, 0);
+    if (self != NULL) {
+        self->tot = PyFloat_FromDouble(0.0);
+        self->vdw = PyFloat_FromDouble(0.0);
+        self->elec = PyFloat_FromDouble(0.0);
+        self->gb = PyFloat_FromDouble(0.0);
+        self->bond = PyFloat_FromDouble(0.0);
+        self->angle = PyFloat_FromDouble(0.0);
+        self->dihedral = PyFloat_FromDouble(0.0);
+        self->vdw_14 = PyFloat_FromDouble(0.0);
+        self->elec_14 = PyFloat_FromDouble(0.0);
+        self->constraint = PyFloat_FromDouble(0.0);
+        self->polar = PyFloat_FromDouble(0.0);
+        self->hbond = PyFloat_FromDouble(0.0);
+        self->surf = PyFloat_FromDouble(0.0);
+        self->scf = PyFloat_FromDouble(0.0);
+        self->disp = PyFloat_FromDouble(0.0);
+        self->dvdl = PyFloat_FromDouble(0.0);
+        self->angle_ub = PyFloat_FromDouble(0.0);
+        self->imp = PyFloat_FromDouble(0.0);
+        self->cmap = PyFloat_FromDouble(0.0);
+        self->emap = PyFloat_FromDouble(0.0);
+        self->les = PyFloat_FromDouble(0.0);
+        self->noe = PyFloat_FromDouble(0.0);
+        self->pb = PyFloat_FromDouble(0.0);
+        self->rism = PyFloat_FromDouble(0.0);
+        self->ct = PyFloat_FromDouble(0.0);
+        self->amd_boost = PyFloat_FromDouble(0.0);
+    }
+
+    return (PyObject *) self;
+}
+
+static void
+pysander_EnergyTerms_dealloc(pysander_EnergyTerms* self) {
+    Py_DECREF(self->tot);
+    Py_DECREF(self->vdw);
+    Py_DECREF(self->elec);
+    Py_DECREF(self->gb);
+    Py_DECREF(self->bond);
+    Py_DECREF(self->angle);
+    Py_DECREF(self->dihedral);
+    Py_DECREF(self->vdw_14);
+    Py_DECREF(self->elec_14);
+    Py_DECREF(self->constraint);
+    Py_DECREF(self->polar);
+    Py_DECREF(self->hbond);
+    Py_DECREF(self->surf);
+    Py_DECREF(self->scf);
+    Py_DECREF(self->disp);
+    Py_DECREF(self->dvdl);
+    Py_DECREF(self->angle_ub);
+    Py_DECREF(self->imp);
+    Py_DECREF(self->cmap);
+    Py_DECREF(self->emap);
+    Py_DECREF(self->les);
+    Py_DECREF(self->noe);
+    Py_DECREF(self->pb);
+    Py_DECREF(self->rism);
+    Py_DECREF(self->ct);
+    Py_DECREF(self->amd_boost);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyMemberDef pysander_EnergyTermsMembers[] = {
+    {"tot", T_OBJECT, offsetof(pysander_EnergyTerms, tot), 0,
+                "Total potential energy"},
+    {"vdw", T_OBJECT, offsetof(pysander_EnergyTerms, vdw), 0,
+                "van der Waals energy (excluding 1-4)"},
+    {"elec", T_OBJECT, offsetof(pysander_EnergyTerms, elec), 0,
+                "Electrostatic energy (excluding 1-4)"},
+    {"gb", T_OBJECT, offsetof(pysander_EnergyTerms, gb), 0,
+                "Generalized Born polar solvation energy"},
+    {"bond", T_OBJECT, offsetof(pysander_EnergyTerms, bond), 0,
+                "Bond energy"},
+    {"angle", T_OBJECT, offsetof(pysander_EnergyTerms, angle), 0,
+                "Angle energy"},
+    {"dihedral", T_OBJECT, offsetof(pysander_EnergyTerms, dihedral), 0,
+                "Dihedral energy (including impropers)"},
+    {"vdw_14", T_OBJECT, offsetof(pysander_EnergyTerms, vdw_14), 0,
+                "1-4 van der Waals energy"},
+    {"elec_14", T_OBJECT, offsetof(pysander_EnergyTerms, elec_14), 0,
+                "1-4 electrostatic energy"},
+    {"constraint", T_OBJECT, offsetof(pysander_EnergyTerms, constraint), 0,
+                "Restraint energy"},
+    {"polar", T_OBJECT, offsetof(pysander_EnergyTerms, polar), 0,
+                "Polarization energy (for polarized force fields)"},
+    {"hbond", T_OBJECT, offsetof(pysander_EnergyTerms, hbond), 0,
+                "Hydrogen bond (10-12 potential) energy"},
+    {"surf", T_OBJECT, offsetof(pysander_EnergyTerms, surf), 0,
+                "Nonpolar solvation energy for implicit solvent"},
+    {"scf", T_OBJECT, offsetof(pysander_EnergyTerms, scf), 0,
+                "QM energy"},
+    {"disp", T_OBJECT, offsetof(pysander_EnergyTerms, disp), 0,
+                "Dispersion nonpolar solvation energy from PB"},
+    {"dvdl", T_OBJECT, offsetof(pysander_EnergyTerms, dvdl), 0,
+                "DV/DL from TI"},
+    {"angle_ub", T_OBJECT, offsetof(pysander_EnergyTerms, angle_ub), 0,
+                "Urey-Bradley energy (CHARMM FF only)"},
+    {"imp", T_OBJECT, offsetof(pysander_EnergyTerms, imp), 0,
+                "Improper torsion energy (CHARMM FF only)"},
+    {"cmap", T_OBJECT, offsetof(pysander_EnergyTerms, cmap), 0,
+                "Coupled torsion correction map energy (CHARMM only)"},
+    {"emap", T_OBJECT, offsetof(pysander_EnergyTerms, emap), 0,
+                "Energy map restraint energy"},
+    {"les", T_OBJECT, offsetof(pysander_EnergyTerms, les), 0,
+                "LES energy"},
+    {"noe", T_OBJECT, offsetof(pysander_EnergyTerms, noe), 0,
+                "NOE restraint energy"},
+    {"pb", T_OBJECT, offsetof(pysander_EnergyTerms, pb), 0,
+                "PB polar solvation energy"},
+    {"rism", T_OBJECT, offsetof(pysander_EnergyTerms, rism), 0,
+                "3D-RISM energy"},
+    {"ct", T_OBJECT, offsetof(pysander_EnergyTerms, ct), 0,
+                "????"},
+    {"amd_boost", T_OBJECT, offsetof(pysander_EnergyTerms, amd_boost), 0,
+                "accelerated MD boost energy"},
+    {NULL} /* sentinel */
+};
+
+static PyTypeObject pysander_EnergyTermsType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                              // ob_size
+    "sander.pysander.EnergyTerms",  // tp_name
+    sizeof(pysander_EnergyTerms),   // tp_basicsize
+    0,                              // tp_itemsize
+    (destructor)pysander_EnergyTerms_dealloc, // tp_dealloc
+    0,                              // tp_print
+    0,                              // tp_getattr
+    0,                              // tp_setattr
+    0,                              // tp_compare
+    0,                              // tp_repr
+    0,                              // tp_as_number
+    0,                              // tp_as_sequence
+    0,                              // tp_as_mapping
+    0,                              // tp_hash 
+    0,                              // tp_call
+    0,                              // tp_str
+    0,                              // tp_getattro
+    0,                              // tp_setattro
+    0,                              // tp_as_buffer
+    Py_TPFLAGS_DEFAULT,             // tp_flags
+    "List of sander energy terms",  // tp_doc 
+    0,		                        // tp_traverse
+    0,		                        // tp_clear
+    0,		                        // tp_richcompare
+    0,		                        // tp_weaklistoffset
+    0,		                        // tp_iter
+    0,		                        // tp_iternext
+    0,                              // tp_methods
+    pysander_EnergyTermsMembers,    // tp_members
+    0,                              // tp_getset
+    0,                              // tp_base
+    0,                              // tp_dict
+    0,                              // tp_descr_get
+    0,                              // tp_descr_set
+    0,                              // tp_dictoffset
+    0,                              // tp_init
+    0,                              // tp_alloc
+    (newfunc)pysander_EnergyTerms_new,// tp_new
     
 };
 
