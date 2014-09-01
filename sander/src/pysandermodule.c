@@ -365,6 +365,20 @@ pysander_pme_input(PyObject *self) {
     return (PyObject *) ret;
 }
 
+/* Returns the number of atoms in the currently set-up system. If the system is
+ * not set up, raise RuntimeError
+ */
+static PyObject *
+pysander_natom(PyObject *self) {
+    if (IS_SETUP == 0) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Cannot query number of atoms -- no system set up");
+        return NULL;
+    }
+
+    return PyInt_FromLong((long int)sander_natom());
+}
+
 /* Python module initialization */
 
 static PyMethodDef
@@ -380,6 +394,8 @@ pysanderMethods[] = {
     { "pme_input", (PyCFunction) pysander_pme_input, METH_NOARGS,
             "Returns a populated InputOptions instance optimized with Amber\n"
             "defaults for PME calculations.\n"},
+    { "natom", (PyCFunction) pysander_natom, METH_NOARGS,
+            "Returns the number of atoms in the currently set-up system"},
 #if 0
     { "energy_forces", (PyCFunction) pysander_energy_forces, METH_NOARGS,
             "Returns a populated SanderEnergy instance and a 3*natom-length\n"

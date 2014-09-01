@@ -7,6 +7,7 @@ setup = _pys.setup
 cleanup = _pys.cleanup
 pme_input = _pys.pme_input
 gas_input = _pys.gas_input
+natom = _pys.natom
 
 def qm_input():
     """
