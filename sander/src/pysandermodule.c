@@ -47,25 +47,231 @@ pysander_setup(PyObject *self, PyObject *args) {
     }
 
     pysander_InputOptions *mm_inp;
+    pysander_QmInputOptions *qm_inp;
+
+    if (!PyObject_TypeCheck(arg3, &pysander_InputOptionsType)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "3rd argument must be of type InputOptions");
+        return NULL;
+    }
+
+    if (arg4 && !PyObject_TypeCheck(arg4, &pysander_QmInputOptionsType)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "4th argument must be of type QmInputOptions");
+        return NULL;
+    }
+
     mm_inp = (pysander_InputOptions *) arg3;
 
     // Copy over values from mm_inp to input
-    input.igb = (int) PyInt_AS_LONG(mm_inp->igb);
-    input.alpb = (int) PyInt_AS_LONG(mm_inp->alpb);
-    input.gbsa = (int) PyInt_AS_LONG(mm_inp->gbsa);
-    input.lj1264 = (int) PyInt_AS_LONG(mm_inp->lj1264);
-    input.ipb = (int) PyInt_AS_LONG(mm_inp->ipb);
-    input.inp = (int) PyInt_AS_LONG(mm_inp->inp);
-    input.vdwmeth = (int) PyInt_AS_LONG(mm_inp->vdwmeth);
-    input.ntb = (int) PyInt_AS_LONG(mm_inp->ntb);
-    input.ifqnt = (int) PyInt_AS_LONG(mm_inp->ifqnt);
+    input.igb = (int) PyInt_AsLong(mm_inp->igb);
+    input.alpb = (int) PyInt_AsLong(mm_inp->alpb);
+    input.gbsa = (int) PyInt_AsLong(mm_inp->gbsa);
+    input.lj1264 = (int) PyInt_AsLong(mm_inp->lj1264);
+    input.ipb = (int) PyInt_AsLong(mm_inp->ipb);
+    input.inp = (int) PyInt_AsLong(mm_inp->inp);
+    input.vdwmeth = (int) PyInt_AsLong(mm_inp->vdwmeth);
+    input.ntb = (int) PyInt_AsLong(mm_inp->ntb);
+    input.ifqnt = (int) PyInt_AsLong(mm_inp->ifqnt);
+    input.jfastw = (int) PyInt_AsLong(mm_inp->jfastw);
 
-    input.extdiel = PyFloat_AS_DOUBLE(mm_inp->extdiel);
-    input.intdiel = PyFloat_AS_DOUBLE(mm_inp->intdiel);
-    input.rgbmax = PyFloat_AS_DOUBLE(mm_inp->rgbmax);
-    input.saltcon = PyFloat_AS_DOUBLE(mm_inp->saltcon);
-    input.cut = PyFloat_AS_DOUBLE(mm_inp->cut);
-    input.dielc = PyFloat_AS_DOUBLE(mm_inp->dielc);
+    input.extdiel = PyFloat_AsDouble(mm_inp->extdiel);
+    input.intdiel = PyFloat_AsDouble(mm_inp->intdiel);
+    input.rgbmax = PyFloat_AsDouble(mm_inp->rgbmax);
+    input.saltcon = PyFloat_AsDouble(mm_inp->saltcon);
+    input.cut = PyFloat_AsDouble(mm_inp->cut);
+    input.dielc = PyFloat_AsDouble(mm_inp->dielc);
+
+    if (arg4) {
+        qm_inp = (pysander_QmInputOptions *) arg4;
+        // Copy over values from qm_inp to qm_input
+        qm_input.qmgb = (int) PyInt_AsLong(qm_inp->qmgb);
+        qm_input.lnk_atomic_no = (int) PyInt_AsLong(qm_inp->lnk_atomic_no);
+        qm_input.ndiis_matrices = (int) PyInt_AsLong(qm_inp->ndiis_matrices);
+        qm_input.ndiis_attempts = (int) PyInt_AsLong(qm_inp->ndiis_attempts);
+        qm_input.lnk_method = (int) PyInt_AsLong(qm_inp->lnk_method);
+        qm_input.qmcharge = (int) PyInt_AsLong(qm_inp->qmcharge);
+        qm_input.corecharge = (int) PyInt_AsLong(qm_inp->corecharge);
+        qm_input.buffercharge = (int) PyInt_AsLong(qm_inp->buffercharge);
+        qm_input.spin = (int) PyInt_AsLong(qm_inp->spin);
+        qm_input.qmqmdx = (int) PyInt_AsLong(qm_inp->qmqmdx);
+        qm_input.verbosity = (int) PyInt_AsLong(qm_inp->verbosity);
+        qm_input.printcharges = (int) PyInt_AsLong(qm_inp->printcharges);
+        qm_input.printdipole = (int) PyInt_AsLong(qm_inp->printdipole);
+        qm_input.print_eigenvalues = (int) PyInt_AsLong(qm_inp->print_eigenvalues);
+        qm_input.peptide_corr = (int) PyInt_AsLong(qm_inp->peptide_corr);
+        qm_input.itrmax = (int) PyInt_AsLong(qm_inp->itrmax);
+        qm_input.printbondorders = (int) PyInt_AsLong(qm_inp->printbondorders);
+        qm_input.qmshake = (int) PyInt_AsLong(qm_inp->qmshake);
+        qm_input.qmmmrij_incore = (int) PyInt_AsLong(qm_inp->qmmmrij_incore);
+        qm_input.qmqm_erep_incore = (int) PyInt_AsLong(qm_inp->qmqm_erep_incore);
+        qm_input.pseudo_diag = (int) PyInt_AsLong(qm_inp->pseudo_diag);
+        qm_input.qm_ewald = (int) PyInt_AsLong(qm_inp->qm_ewald);
+        qm_input.qm_pme = (int) PyInt_AsLong(qm_inp->qm_pme);
+        qm_input.kmaxqx = (int) PyInt_AsLong(qm_inp->kmaxqx);
+        qm_input.kmaxqy = (int) PyInt_AsLong(qm_inp->kmaxqy);
+        qm_input.kmaxqz = (int) PyInt_AsLong(qm_inp->kmaxqz);
+        qm_input.ksqmaxq = (int) PyInt_AsLong(qm_inp->ksqmaxq);
+        qm_input.qmmm_int = (int) PyInt_AsLong(qm_inp->qmmm_int);
+        qm_input.adjust_q = (int) PyInt_AsLong(qm_inp->adjust_q);
+        qm_input.tight_p_conv = (int) PyInt_AsLong(qm_inp->tight_p_conv);
+        qm_input.diag_routine = (int) PyInt_AsLong(qm_inp->diag_routine);
+        qm_input.density_predict = (int) PyInt_AsLong(qm_inp->density_predict);
+        qm_input.fock_predict = (int) PyInt_AsLong(qm_inp->fock_predict);
+        qm_input.vsolv = (int) PyInt_AsLong(qm_inp->vsolv);
+        qm_input.dftb_maxiter = (int) PyInt_AsLong(qm_inp->dftb_maxiter);
+        qm_input.dftb_disper = (int) PyInt_AsLong(qm_inp->dftb_disper);
+        qm_input.dftb_chg = (int) PyInt_AsLong(qm_inp->dftb_chg);
+        qm_input.abfqmmm = (int) PyInt_AsLong(qm_inp->abfqmmm);
+        qm_input.hot_spot = (int) PyInt_AsLong(qm_inp->hot_spot);
+        qm_input.qmmm_switch = (int) PyInt_AsLong(qm_inp->qmmm_switch);
+
+        qm_input.qmcut = PyFloat_AsDouble(qm_inp->qmcut);
+        qm_input.lnk_dis = PyFloat_AsDouble(qm_inp->lnk_dis);
+        qm_input.scfconv = PyFloat_AsDouble(qm_inp->scfconv);
+        qm_input.errconv = PyFloat_AsDouble(qm_inp->errconv);
+        qm_input.dftb_telec = PyFloat_AsDouble(qm_inp->dftb_telec);
+        qm_input.dftb_telec_step = PyFloat_AsDouble(qm_inp->dftb_telec_step);
+        qm_input.fockp_d1 = PyFloat_AsDouble(qm_inp->fockp_d1);
+        qm_input.fockp_d2 = PyFloat_AsDouble(qm_inp->fockp_d2);
+        qm_input.fockp_d3 = PyFloat_AsDouble(qm_inp->fockp_d3);
+        qm_input.fockp_d4 = PyFloat_AsDouble(qm_inp->fockp_d4);
+        qm_input.damp = PyFloat_AsDouble(qm_inp->damp);
+        qm_input.vshift = PyFloat_AsDouble(qm_inp->vshift);
+        qm_input.kappa = PyFloat_AsDouble(qm_inp->kappa);
+        qm_input.pseudo_diag_criteria = PyFloat_AsDouble(qm_inp->pseudo_diag_criteria);
+        qm_input.min_heavy_mass = PyFloat_AsDouble(qm_inp->min_heavy_mass);
+        qm_input.r_switch_hi = PyFloat_AsDouble(qm_inp->r_switch_hi);
+        qm_input.r_switch_lo = PyFloat_AsDouble(qm_inp->r_switch_lo);
+
+
+        // Error checking on the string input options
+        if (!PyString_Check(qm_inp->qmmask)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "qmmask must be a string");
+            return NULL;
+        } else if (PyString_Size(qm_inp->qmmask) >= 8192) {
+            PyErr_SetString(PyExc_ValueError,
+                            "qmmask must be smaller than 8192 characters");
+            return NULL;
+        } else {
+            strncpy(qm_input.qmmask, PyString_AsString(qm_inp->qmmask),
+                    PyString_Size(qm_inp->qmmask));
+        }
+
+        if (!PyString_Check(qm_inp->coremask)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "coremask must be a string");
+            return NULL;
+        } else if (PyString_Size(qm_inp->coremask) >= 8192) {
+            PyErr_SetString(PyExc_ValueError,
+                            "coremask must be smaller than 8192 characters");
+            return NULL;
+        } else {
+            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
+                    PyString_Size(qm_inp->coremask));
+        }
+
+        if (!PyString_Check(qm_inp->buffermask)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "buffermask must be a string");
+            return NULL;
+        } else if (PyString_Size(qm_inp->buffermask) >= 8192) {
+            PyErr_SetString(PyExc_ValueError,
+                            "buffermask must be smaller than 8192 characters");
+            return NULL;
+        } else {
+            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
+                    PyString_Size(qm_inp->coremask));
+        }
+
+        if (!PyString_Check(qm_inp->centermask)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "centermask must be a string");
+            return NULL;
+        } else if (PyString_Size(qm_inp->centermask) >= 8192) {
+            PyErr_SetString(PyExc_ValueError,
+                            "centermask must be smaller than 8192 characters");
+            return NULL;
+        } else {
+            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
+                    PyString_Size(qm_inp->coremask));
+        }
+
+        if (!PyString_Check(qm_inp->dftb_3rd_order)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "dftb_3rd_order must be a string");
+            return NULL;
+        } else if (PyString_Size(qm_inp->dftb_3rd_order) >= 256) {
+            PyErr_SetString(PyExc_ValueError,
+                            "coremask must be smaller than 256 characters");
+            return NULL;
+        } else {
+            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
+                    PyString_Size(qm_inp->coremask));
+        }
+
+        if (!PyString_Check(qm_inp->qm_theory)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "qm_theory must be a string");
+            return NULL;
+        } else if (PyString_Size(qm_inp->qm_theory) >= 12) {
+            PyErr_SetString(PyExc_ValueError,
+                            "qm_theory must be smaller than 12 characters");
+            return NULL;
+        } else {
+            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
+                    PyString_Size(qm_inp->coremask));
+        }
+
+        // Now copy over the arrays. Check that none of them are too large
+        if (!PyList_Check(qm_inp->iqmatoms)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "iqmatoms must be a list of integers");
+            return NULL;
+        } else if (PyList_Size(qm_inp->iqmatoms) > MAX_QUANTUM_ATOMS) {
+            PyErr_SetString(PyExc_ValueError, "iqmatoms is too large");
+            return NULL;
+        } else {
+            Py_ssize_t i;
+            for (i = 0; i < PyList_Size(qm_inp->iqmatoms); i++)
+                qm_input.iqmatoms[i] = (int) PyInt_AsLong(PyList_GetItem(qm_inp->iqmatoms, i));
+            for (i = PyList_Size(qm_inp->iqmatoms); i < MAX_QUANTUM_ATOMS; i++)
+                qm_input.iqmatoms[i] = 0;
+        }
+
+        if (!PyList_Check(qm_inp->core_iqmatoms)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "core_iqmatoms must be a list");
+            return NULL;
+        } else if (PyList_Size(qm_inp->core_iqmatoms) > MAX_QUANTUM_ATOMS) {
+            PyErr_SetString(PyExc_ValueError,
+                            "core_iqmatoms is too large");
+            return NULL;
+        } else {
+            Py_ssize_t i;
+            for (i = 0; i < PyList_Size(qm_inp->core_iqmatoms); i++)
+                qm_input.core_iqmatoms[i] = (int) PyInt_AsLong(PyList_GetItem(qm_inp->core_iqmatoms, i));
+            for (i = PyList_Size(qm_inp->core_iqmatoms); i < MAX_QUANTUM_ATOMS; i++)
+                qm_input.core_iqmatoms[i] = 0;
+        }
+
+        if (!PyList_Check(qm_inp->buffer_iqmatoms)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "buffer_iqmatoms must be a list");
+            return NULL;
+        } else if (PyList_Size(qm_inp->buffer_iqmatoms) > MAX_QUANTUM_ATOMS) {
+            PyErr_SetString(PyExc_ValueError,
+                            "buffer_iqmatoms is too large");
+            return NULL;
+        } else {
+            Py_ssize_t i;
+            for (i = 0; i < PyList_Size(qm_inp->buffer_iqmatoms); i++)
+                qm_input.buffer_iqmatoms[i] = (int) PyInt_AsLong(PyList_GetItem(qm_inp->buffer_iqmatoms, i));
+            for (i = PyList_Size(qm_inp->buffer_iqmatoms); i < MAX_QUANTUM_ATOMS; i++)
+                qm_input.buffer_iqmatoms[i] = 0;
+        }
+    }
 
     sander_setup(prmtop, inpcrd, &input, &qm_input);
     IS_SETUP = 1;
@@ -114,6 +320,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ret->vdwmeth = PyInt_FromLong(inp.vdwmeth);
     ret->ntb = PyInt_FromLong(inp.ntb);
     ret->ifqnt = PyInt_FromLong(inp.ifqnt);
+    ret->jfastw = PyInt_FromLong(inp.jfastw);
     // Floats
     ret->extdiel = PyFloat_FromDouble(inp.extdiel);
     ret->intdiel = PyFloat_FromDouble(inp.intdiel);
@@ -146,6 +353,7 @@ pysander_pme_input(PyObject *self) {
     ret->vdwmeth = PyInt_FromLong(inp.vdwmeth);
     ret->ntb = PyInt_FromLong(inp.ntb);
     ret->ifqnt = PyInt_FromLong(inp.ifqnt);
+    ret->jfastw = PyInt_FromLong(inp.jfastw);
     // Floats
     ret->extdiel = PyFloat_FromDouble(inp.extdiel);
     ret->intdiel = PyFloat_FromDouble(inp.intdiel);
@@ -204,6 +412,8 @@ void initpysander() {
         return;
     if (PyType_Ready(&pysander_EnergyTermsType))
         return;
+    if (PyType_Ready(&pysander_QmInputOptionsType))
+        return;
 
     // Initialize the module
     m = Py_InitModule3("pysander", pysanderMethods,
@@ -214,5 +424,7 @@ void initpysander() {
     PyModule_AddObject(m, "InputOptions", (PyObject*) &pysander_InputOptionsType);
     Py_INCREF(&pysander_EnergyTermsType);
     PyModule_AddObject(m, "EnergyTerms", (PyObject *) &pysander_EnergyTermsType);
+    Py_INCREF(&pysander_QmInputOptionsType);
+    PyModule_AddObject(m, "QmInputOptions", (PyObject *) &pysander_QmInputOptionsType);
 #endif
 }
