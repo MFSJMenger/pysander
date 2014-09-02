@@ -432,7 +432,7 @@ typedef struct {
 #define ASSIGN_INT(var) self->var = PyInt_FromLong(inp.var)
 #define ASSIGN_FLOAT(var) self->var = PyFloat_FromDouble(inp.var)
 #define ASSIGN_LIST(var, len) self->var = PyList_New(len)
-#define ASSIGN_STRING(var) self->var = PyString_FromString("")
+#define ASSIGN_STRING(var, val) self->var = PyString_FromString(val)
 
 static PyObject *
 pysander_QmInputOptions_new(PyTypeObject *type) {
@@ -504,12 +504,12 @@ pysander_QmInputOptions_new(PyTypeObject *type) {
         ASSIGN_FLOAT(r_switch_hi);
         ASSIGN_FLOAT(r_switch_lo);
 
-        ASSIGN_STRING(qmmask);
-        ASSIGN_STRING(coremask);
-        ASSIGN_STRING(buffermask);
-        ASSIGN_STRING(centermask);
-        ASSIGN_STRING(dftb_3rd_order);
-        ASSIGN_STRING(qm_theory);
+        ASSIGN_STRING(qmmask, "");
+        ASSIGN_STRING(coremask, "");
+        ASSIGN_STRING(buffermask, "");
+        ASSIGN_STRING(centermask, "");
+        ASSIGN_STRING(dftb_3rd_order, "NONE");
+        ASSIGN_STRING(qm_theory, "");
 
         // Now assign all of the lists to zeros
         for (i = 0; i < MAX_QUANTUM_ATOMS; i++) {

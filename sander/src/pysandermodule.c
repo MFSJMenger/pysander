@@ -35,6 +35,9 @@ pysander_setup(PyObject *self, PyObject *args) {
     sander_input input;
     qmmm_input_options qm_input;
 
+    // Needed to blank-out the strings
+    qm_sander_input(&qm_input);
+
     // The passed arguments
     if (!PyArg_ParseTuple(args, "ssO|O", &prmtop, &inpcrd, &arg3, &arg4))
         return NULL;
@@ -146,6 +149,7 @@ pysander_setup(PyObject *self, PyObject *args) {
 
 
         // Error checking on the string input options
+        size_t i;
         if (!PyString_Check(qm_inp->qmmask)) {
             PyErr_SetString(PyExc_ValueError,
                             "qmmask must be a string");
@@ -157,6 +161,8 @@ pysander_setup(PyObject *self, PyObject *args) {
         } else {
             strncpy(qm_input.qmmask, PyString_AsString(qm_inp->qmmask),
                     PyString_Size(qm_inp->qmmask));
+            for (i = PyString_Size(qm_inp->qmmask); i < 8192; i++)
+                qm_input.qmmask[i] = ' ';
         }
 
         if (!PyString_Check(qm_inp->coremask)) {
@@ -170,6 +176,8 @@ pysander_setup(PyObject *self, PyObject *args) {
         } else {
             strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
                     PyString_Size(qm_inp->coremask));
+            for (i = PyString_Size(qm_inp->coremask); i < 8192; i++)
+                qm_input.coremask[i] = ' ';
         }
 
         if (!PyString_Check(qm_inp->buffermask)) {
@@ -181,8 +189,10 @@ pysander_setup(PyObject *self, PyObject *args) {
                             "buffermask must be smaller than 8192 characters");
             return NULL;
         } else {
-            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
-                    PyString_Size(qm_inp->coremask));
+            strncpy(qm_input.buffermask, PyString_AsString(qm_inp->buffermask),
+                    PyString_Size(qm_inp->buffermask));
+            for (i = PyString_Size(qm_inp->buffermask); i < 8192; i++)
+                qm_input.buffermask[i] = ' ';
         }
 
         if (!PyString_Check(qm_inp->centermask)) {
@@ -194,8 +204,10 @@ pysander_setup(PyObject *self, PyObject *args) {
                             "centermask must be smaller than 8192 characters");
             return NULL;
         } else {
-            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
-                    PyString_Size(qm_inp->coremask));
+            strncpy(qm_input.centermask, PyString_AsString(qm_inp->centermask),
+                    PyString_Size(qm_inp->centermask));
+            for (i = PyString_Size(qm_inp->centermask); i < 8192; i++)
+                qm_input.centermask[i] = ' ';
         }
 
         if (!PyString_Check(qm_inp->dftb_3rd_order)) {
@@ -204,11 +216,13 @@ pysander_setup(PyObject *self, PyObject *args) {
             return NULL;
         } else if (PyString_Size(qm_inp->dftb_3rd_order) >= 256) {
             PyErr_SetString(PyExc_ValueError,
-                            "coremask must be smaller than 256 characters");
+                            "dftb_3rd_order must be smaller than 256 characters");
             return NULL;
         } else {
-            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
-                    PyString_Size(qm_inp->coremask));
+            strncpy(qm_input.dftb_3rd_order, PyString_AsString(qm_inp->dftb_3rd_order),
+                    PyString_Size(qm_inp->dftb_3rd_order));
+            for (i = PyString_Size(qm_inp->dftb_3rd_order); i < 256; i++)
+                qm_input.dftb_3rd_order[i] = ' ';
         }
 
         if (!PyString_Check(qm_inp->qm_theory)) {
@@ -220,8 +234,10 @@ pysander_setup(PyObject *self, PyObject *args) {
                             "qm_theory must be smaller than 12 characters");
             return NULL;
         } else {
-            strncpy(qm_input.coremask, PyString_AsString(qm_inp->coremask),
-                    PyString_Size(qm_inp->coremask));
+            strncpy(qm_input.qm_theory, PyString_AsString(qm_inp->qm_theory),
+                    (int)PyString_Size(qm_inp->qm_theory));
+            for (i = PyString_Size(qm_inp->qm_theory); i < 12; i++)
+                qm_input.qm_theory[i] = ' ';
         }
 
         // Now copy over the arrays. Check that none of them are too large
@@ -440,6 +456,7 @@ pysander_energy_forces(PyObject *self) {
     Py_ssize_t i;
     for (i = 0; i < (Py_ssize_t) natom3; i++)
         PyList_SET_ITEM(py_forces, i, PyFloat_FromDouble(forces[i]));
+    free(forces);
 
     PyObject *ret = PyTuple_New(2);
     PyTuple_SET_ITEM(ret, 0, (PyObject *)py_energies);
