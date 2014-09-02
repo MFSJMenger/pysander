@@ -305,7 +305,7 @@ pysander_cleanup(PyObject *self) {
 static PyObject*
 pysander_gas_input(PyObject *self, PyObject *args) {
 
-    long tmp;
+    long tmp = 0;
     if (!PyArg_ParseTuple(args, "|i", &tmp)) {
         return NULL;
     }
