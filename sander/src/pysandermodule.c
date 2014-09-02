@@ -234,8 +234,10 @@ pysander_setup(PyObject *self, PyObject *args) {
             return NULL;
         } else {
             Py_ssize_t i;
-            for (i = 0; i < PyList_Size(qm_inp->iqmatoms); i++)
-                qm_input.iqmatoms[i] = (int) PyInt_AsLong(PyList_GetItem(qm_inp->iqmatoms, i));
+            for (i = 0; i < PyList_Size(qm_inp->iqmatoms); i++) {
+                qm_input.iqmatoms[i] = (int) 
+                        PyInt_AsLong(PyList_GetItem(qm_inp->iqmatoms, i));
+            }
             for (i = PyList_Size(qm_inp->iqmatoms); i < MAX_QUANTUM_ATOMS; i++)
                 qm_input.iqmatoms[i] = 0;
         }
@@ -250,8 +252,10 @@ pysander_setup(PyObject *self, PyObject *args) {
             return NULL;
         } else {
             Py_ssize_t i;
-            for (i = 0; i < PyList_Size(qm_inp->core_iqmatoms); i++)
-                qm_input.core_iqmatoms[i] = (int) PyInt_AsLong(PyList_GetItem(qm_inp->core_iqmatoms, i));
+            for (i = 0; i < PyList_Size(qm_inp->core_iqmatoms); i++) {
+                qm_input.core_iqmatoms[i] = (int)
+                        PyInt_AsLong(PyList_GetItem(qm_inp->core_iqmatoms, i));
+            }
             for (i = PyList_Size(qm_inp->core_iqmatoms); i < MAX_QUANTUM_ATOMS; i++)
                 qm_input.core_iqmatoms[i] = 0;
         }
@@ -267,7 +271,8 @@ pysander_setup(PyObject *self, PyObject *args) {
         } else {
             Py_ssize_t i;
             for (i = 0; i < PyList_Size(qm_inp->buffer_iqmatoms); i++)
-                qm_input.buffer_iqmatoms[i] = (int) PyInt_AsLong(PyList_GetItem(qm_inp->buffer_iqmatoms, i));
+                qm_input.buffer_iqmatoms[i] = (int)
+                        PyInt_AsLong(PyList_GetItem(qm_inp->buffer_iqmatoms, i));
             for (i = PyList_Size(qm_inp->buffer_iqmatoms); i < MAX_QUANTUM_ATOMS; i++)
                 qm_input.buffer_iqmatoms[i] = 0;
         }
@@ -300,10 +305,11 @@ pysander_cleanup(PyObject *self) {
 static PyObject*
 pysander_gas_input(PyObject *self, PyObject *args) {
 
-    int igb = 0;
-    if (!PyArg_ParseTuple(args, "|i", &igb)) {
+    long tmp;
+    if (!PyArg_ParseTuple(args, "|i", &tmp)) {
         return NULL;
     }
+    int igb = (int) tmp;
     sander_input inp;
     gas_sander_input(&inp, &igb);
     pysander_InputOptions *ret = (pysander_InputOptions *)
@@ -311,16 +317,16 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     if (ret == NULL)
         return NULL;
     // Integers
-    ret->igb = PyInt_FromLong(inp.igb);
-    ret->alpb = PyInt_FromLong(inp.alpb);
-    ret->gbsa = PyInt_FromLong(inp.gbsa);
-    ret->lj1264 = PyInt_FromLong(inp.lj1264);
-    ret->ipb = PyInt_FromLong(inp.ipb);
-    ret->inp = PyInt_FromLong(inp.inp);
-    ret->vdwmeth = PyInt_FromLong(inp.vdwmeth);
-    ret->ntb = PyInt_FromLong(inp.ntb);
-    ret->ifqnt = PyInt_FromLong(inp.ifqnt);
-    ret->jfastw = PyInt_FromLong(inp.jfastw);
+    ret->igb = PyInt_FromLong((long) igb);
+    ret->alpb = PyInt_FromLong((long)inp.alpb);
+    ret->gbsa = PyInt_FromLong((long)inp.gbsa);
+    ret->lj1264 = PyInt_FromLong((long)inp.lj1264);
+    ret->ipb = PyInt_FromLong((long)inp.ipb);
+    ret->inp = PyInt_FromLong((long)inp.inp);
+    ret->vdwmeth = PyInt_FromLong((long)inp.vdwmeth);
+    ret->ntb = PyInt_FromLong((long)inp.ntb);
+    ret->ifqnt = PyInt_FromLong((long)inp.ifqnt);
+    ret->jfastw = PyInt_FromLong((long)inp.jfastw);
     // Floats
     ret->extdiel = PyFloat_FromDouble(inp.extdiel);
     ret->intdiel = PyFloat_FromDouble(inp.intdiel);
@@ -335,6 +341,8 @@ pysander_gas_input(PyObject *self, PyObject *args) {
 /* Creates an input option struct with all of the options optimized for PME
  * calculations
  */
+#define ASSIGN_INT(var) ret->var = PyInt_FromLong((long int)inp.var)
+#define ASSIGN_FLOAT(var) ret->var = PyFloat_FromDouble(inp.var)
 static PyObject *
 pysander_pme_input(PyObject *self) {
     sander_input inp;
@@ -344,26 +352,28 @@ pysander_pme_input(PyObject *self) {
     if (ret == NULL)
         return NULL;
     // Integers
-    ret->igb = PyInt_FromLong(inp.igb);
-    ret->alpb = PyInt_FromLong(inp.alpb);
-    ret->gbsa = PyInt_FromLong(inp.gbsa);
-    ret->lj1264 = PyInt_FromLong(inp.lj1264);
-    ret->ipb = PyInt_FromLong(inp.ipb);
-    ret->inp = PyInt_FromLong(inp.inp);
-    ret->vdwmeth = PyInt_FromLong(inp.vdwmeth);
-    ret->ntb = PyInt_FromLong(inp.ntb);
-    ret->ifqnt = PyInt_FromLong(inp.ifqnt);
-    ret->jfastw = PyInt_FromLong(inp.jfastw);
+    ASSIGN_INT(igb);
+    ASSIGN_INT(alpb);
+    ASSIGN_INT(gbsa);
+    ASSIGN_INT(lj1264);
+    ASSIGN_INT(ipb);
+    ASSIGN_INT(inp);
+    ASSIGN_INT(vdwmeth);
+    ASSIGN_INT(ntb);
+    ASSIGN_INT(ifqnt);
+    ASSIGN_INT(jfastw);
     // Floats
-    ret->extdiel = PyFloat_FromDouble(inp.extdiel);
-    ret->intdiel = PyFloat_FromDouble(inp.intdiel);
-    ret->rgbmax = PyFloat_FromDouble(inp.rgbmax);
-    ret->saltcon = PyFloat_FromDouble(inp.saltcon);
-    ret->cut = PyFloat_FromDouble(inp.cut);
-    ret->dielc = PyFloat_FromDouble(inp.dielc);
+    ASSIGN_FLOAT(extdiel);
+    ASSIGN_FLOAT(intdiel);
+    ASSIGN_FLOAT(rgbmax);
+    ASSIGN_FLOAT(saltcon);
+    ASSIGN_FLOAT(cut);
+    ASSIGN_FLOAT(dielc);
 
     return (PyObject *) ret;
 }
+#undef ASSIGN_INT
+#undef ASSIGN_FLOAT
 
 /* Returns the number of atoms in the currently set-up system. If the system is
  * not set up, raise RuntimeError
@@ -377,6 +387,65 @@ pysander_natom(PyObject *self) {
     }
 
     return PyInt_FromLong((long int)sander_natom());
+}
+
+static PyObject *
+pysander_energy_forces(PyObject *self) {
+
+    if (IS_SETUP == 0) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Cannot compute energies and forces -- no system set up");
+        return NULL;
+    }
+
+    pot_ene energies;
+    double *forces = (double *) malloc(3*sander_natom()*sizeof(double));
+
+    int natom3 = 3 * sander_natom();
+    energy_forces(&energies, forces);
+
+    // Now construct the return values
+
+    pysander_EnergyTerms *py_energies = (pysander_EnergyTerms *)
+            PyObject_CallObject((PyObject *) &pysander_EnergyTermsType, NULL);
+    PyObject *py_forces = PyList_New(natom3);
+
+    py_energies->tot = PyFloat_FromDouble(energies.tot);
+    py_energies->vdw = PyFloat_FromDouble(energies.vdw);
+    py_energies->elec = PyFloat_FromDouble(energies.elec);
+    py_energies->gb = PyFloat_FromDouble(energies.gb);
+    py_energies->bond = PyFloat_FromDouble(energies.bond);
+    py_energies->angle = PyFloat_FromDouble(energies.angle);
+    py_energies->dihedral = PyFloat_FromDouble(energies.dihedral);
+    py_energies->vdw_14 = PyFloat_FromDouble(energies.vdw_14);
+    py_energies->elec_14 = PyFloat_FromDouble(energies.elec_14);
+    py_energies->constraint = PyFloat_FromDouble(energies.constraint);
+    py_energies->polar = PyFloat_FromDouble(energies.polar);
+    py_energies->hbond = PyFloat_FromDouble(energies.hbond);
+    py_energies->surf = PyFloat_FromDouble(energies.surf);
+    py_energies->scf = PyFloat_FromDouble(energies.scf);
+    py_energies->disp = PyFloat_FromDouble(energies.disp);
+    py_energies->dvdl = PyFloat_FromDouble(energies.dvdl);
+    py_energies->angle_ub = PyFloat_FromDouble(energies.angle_ub);
+    py_energies->imp = PyFloat_FromDouble(energies.imp);
+    py_energies->cmap = PyFloat_FromDouble(energies.cmap);
+    py_energies->emap = PyFloat_FromDouble(energies.emap);
+    py_energies->les = PyFloat_FromDouble(energies.les);
+    py_energies->noe = PyFloat_FromDouble(energies.noe);
+    py_energies->pb = PyFloat_FromDouble(energies.pb);
+    py_energies->rism = PyFloat_FromDouble(energies.rism);
+    py_energies->ct = PyFloat_FromDouble(energies.ct);
+    py_energies->amd_boost = PyFloat_FromDouble(energies.amd_boost);
+
+    Py_ssize_t i;
+    for (i = 0; i < (Py_ssize_t) natom3; i++)
+        PyList_SET_ITEM(py_forces, i, PyFloat_FromDouble(forces[i]));
+
+    PyObject *ret = PyTuple_New(2);
+    PyTuple_SET_ITEM(ret, 0, (PyObject *)py_energies);
+    PyTuple_SET_ITEM(ret, 1, py_forces);
+
+    return ret;
 }
 
 /* Python module initialization */
@@ -396,6 +465,17 @@ pysanderMethods[] = {
             "defaults for PME calculations.\n"},
     { "natom", (PyCFunction) pysander_natom, METH_NOARGS,
             "Returns the number of atoms in the currently set-up system"},
+    { "energy_forces", (PyCFunction) pysander_energy_forces, METH_NOARGS,
+            "Computes energies and forces from the given set of coordinates.\n"
+            "\n"
+            "Returns\n"
+            "-------\n"
+            "   energy : type EnergyTerms\n"
+            "       An EnergyTerms instance populated with the energy components\n"
+            "       in kilocalories per mole\n"
+            "\n"
+            "   forces : list\n"
+            "       A list of all forces in kilocalories/mole/Angstroms"},
 #if 0
     { "energy_forces", (PyCFunction) pysander_energy_forces, METH_NOARGS,
             "Returns a populated SanderEnergy instance and a 3*natom-length\n"
