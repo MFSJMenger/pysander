@@ -315,6 +315,8 @@ pysander_cleanup(PyObject *self) {
     Py_RETURN_NONE;
 }
 
+#define ASSIGN_INT(var) Py_DECREF(ret->var); ret->var = PyInt_FromLong((long int)inp.var)
+#define ASSIGN_FLOAT(var) Py_DECREF(ret->var); ret->var = PyFloat_FromDouble(inp.var)
 /* Creates an input option struct with all of the options optimized for gas
  * phase or implicit solvent (i.e., aperiodic) calculations
  */
@@ -333,23 +335,23 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     if (ret == NULL)
         return NULL;
     // Integers
-    ret->igb = PyInt_FromLong((long) igb);
-    ret->alpb = PyInt_FromLong((long)inp.alpb);
-    ret->gbsa = PyInt_FromLong((long)inp.gbsa);
-    ret->lj1264 = PyInt_FromLong((long)inp.lj1264);
-    ret->ipb = PyInt_FromLong((long)inp.ipb);
-    ret->inp = PyInt_FromLong((long)inp.inp);
-    ret->vdwmeth = PyInt_FromLong((long)inp.vdwmeth);
-    ret->ntb = PyInt_FromLong((long)inp.ntb);
-    ret->ifqnt = PyInt_FromLong((long)inp.ifqnt);
-    ret->jfastw = PyInt_FromLong((long)inp.jfastw);
+    ASSIGN_INT(igb);
+    ASSIGN_INT(alpb);
+    ASSIGN_INT(gbsa);
+    ASSIGN_INT(lj1264);
+    ASSIGN_INT(ipb);
+    ASSIGN_INT(inp);
+    ASSIGN_INT(vdwmeth);
+    ASSIGN_INT(ntb);
+    ASSIGN_INT(ifqnt);
+    ASSIGN_INT(jfastw);
     // Floats
-    ret->extdiel = PyFloat_FromDouble(inp.extdiel);
-    ret->intdiel = PyFloat_FromDouble(inp.intdiel);
-    ret->rgbmax = PyFloat_FromDouble(inp.rgbmax);
-    ret->saltcon = PyFloat_FromDouble(inp.saltcon);
-    ret->cut = PyFloat_FromDouble(inp.cut);
-    ret->dielc = PyFloat_FromDouble(inp.dielc);
+    ASSIGN_FLOAT(extdiel);
+    ASSIGN_FLOAT(intdiel);
+    ASSIGN_FLOAT(rgbmax);
+    ASSIGN_FLOAT(saltcon);
+    ASSIGN_FLOAT(cut);
+    ASSIGN_FLOAT(dielc);
 
     return (PyObject *) ret;
 }
@@ -357,8 +359,6 @@ pysander_gas_input(PyObject *self, PyObject *args) {
 /* Creates an input option struct with all of the options optimized for PME
  * calculations
  */
-#define ASSIGN_INT(var) ret->var = PyInt_FromLong((long int)inp.var)
-#define ASSIGN_FLOAT(var) ret->var = PyFloat_FromDouble(inp.var)
 static PyObject *
 pysander_pme_input(PyObject *self) {
     sander_input inp;

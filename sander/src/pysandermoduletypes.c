@@ -30,7 +30,6 @@ typedef struct {
 static void
 pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->igb);
-    Py_DECREF(self->igb);
     Py_DECREF(self->alpb);
     Py_DECREF(self->gbsa);
     Py_DECREF(self->lj1264);
@@ -513,9 +512,9 @@ pysander_QmInputOptions_new(PyTypeObject *type) {
 
         // Now assign all of the lists to zeros
         for (i = 0; i < MAX_QUANTUM_ATOMS; i++) {
-            PyList_SET_ITEM(self->iqmatoms, i, PyInt_FromLong(0));
-            PyList_SET_ITEM(self->core_iqmatoms, i, PyInt_FromLong(0));
-            PyList_SET_ITEM(self->buffer_iqmatoms, i, PyInt_FromLong(0));
+            PyList_SetItem(self->iqmatoms, i, PyInt_FromLong(0));
+            PyList_SetItem(self->core_iqmatoms, i, PyInt_FromLong(0));
+            PyList_SetItem(self->buffer_iqmatoms, i, PyInt_FromLong(0));
         }
     }
 
