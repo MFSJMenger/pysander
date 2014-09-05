@@ -25,6 +25,7 @@ typedef struct {
     PyObject *saltcon;  // double
     PyObject *cut;      // double
     PyObject *dielc;    // double
+    PyObject *rdt;      // double
 } pysander_InputOptions;
 
 static void
@@ -46,6 +47,7 @@ pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->saltcon);
     Py_DECREF(self->cut);
     Py_DECREF(self->dielc);
+    Py_DECREF(self->rdt);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -71,6 +73,7 @@ pysander_InputOptions_new(PyTypeObject *type) {
         self->saltcon = PyFloat_FromDouble(0.0);
         self->cut = PyFloat_FromDouble(0.0);
         self->dielc = PyFloat_FromDouble(0.0);
+        self->rdt = PyFloat_FromDouble(0.0);
     }
 
     return (PyObject *) self;
@@ -110,6 +113,9 @@ static PyMemberDef pysander_InputOptionMembers[] = {
                 "Nonbonded cutoff"},
     {"dielc", T_OBJECT, offsetof(pysander_InputOptions, dielc), 0,
                 "dielectric constant"},
+    {"rdt", T_OBJECT, offsetof(pysander_InputOptions, rdt), 0,
+                "Cutoff determining when only a single effective GB radius will\n"
+                "be used when computing energies with LES"},
     {NULL} /* sentinel */
 };
 

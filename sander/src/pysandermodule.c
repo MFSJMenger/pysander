@@ -84,6 +84,7 @@ pysander_setup(PyObject *self, PyObject *args) {
     input.saltcon = PyFloat_AsDouble(mm_inp->saltcon);
     input.cut = PyFloat_AsDouble(mm_inp->cut);
     input.dielc = PyFloat_AsDouble(mm_inp->dielc);
+    input.rdt = PyFloat_AsDouble(mm_inp->rdt);
 
     if (arg4) {
         qm_inp = (pysander_QmInputOptions *) arg4;
@@ -352,6 +353,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ASSIGN_FLOAT(saltcon);
     ASSIGN_FLOAT(cut);
     ASSIGN_FLOAT(dielc);
+    ASSIGN_FLOAT(rdt);
 
     return (PyObject *) ret;
 }
@@ -385,6 +387,7 @@ pysander_pme_input(PyObject *self) {
     ASSIGN_FLOAT(saltcon);
     ASSIGN_FLOAT(cut);
     ASSIGN_FLOAT(dielc);
+    ASSIGN_FLOAT(rdt);
 
     return (PyObject *) ret;
 }
