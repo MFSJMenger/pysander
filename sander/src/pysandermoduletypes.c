@@ -4,7 +4,6 @@
  * up-to-date with the types defined in the Fortran module
  */
 
-
 // Input options
 typedef struct {
     PyObject_HEAD
@@ -48,7 +47,7 @@ pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->cut);
     Py_DECREF(self->dielc);
     Py_DECREF(self->rdt);
-    self->ob_type->tp_free((PyObject*)self);
+    PY_DESTROY_TYPE;
 }
 
 static PyObject *
@@ -80,48 +79,52 @@ pysander_InputOptions_new(PyTypeObject *type) {
 }
 
 static PyMemberDef pysander_InputOptionMembers[] = {
-    {"igb", T_OBJECT, offsetof(pysander_InputOptions, igb), 0,
+    {"igb", T_OBJECT_EX, offsetof(pysander_InputOptions, igb), 0,
                 "GB model to use"},
-    {"alpb", T_OBJECT, offsetof(pysander_InputOptions, alpb), 0,
+    {"alpb", T_OBJECT_EX, offsetof(pysander_InputOptions, alpb), 0,
                 "Whether to use ALPB"},
-    {"gbsa", T_OBJECT, offsetof(pysander_InputOptions, gbsa), 0,
+    {"gbsa", T_OBJECT_EX, offsetof(pysander_InputOptions, gbsa), 0,
                 "Whether to use a SASA term with GB"},
-    {"lj1264", T_OBJECT, offsetof(pysander_InputOptions, lj1264), 0,
+    {"lj1264", T_OBJECT_EX, offsetof(pysander_InputOptions, lj1264), 0,
                 "Use the 12-6-4 potential"},
-    {"ipb", T_OBJECT, offsetof(pysander_InputOptions, ipb), 0,
+    {"ipb", T_OBJECT_EX, offsetof(pysander_InputOptions, ipb), 0,
                 "Use PB"},
-    {"inp", T_OBJECT, offsetof(pysander_InputOptions, inp), 0,
+    {"inp", T_OBJECT_EX, offsetof(pysander_InputOptions, inp), 0,
                 "PB SASA model to use"},
-    {"vdwmeth", T_OBJECT, offsetof(pysander_InputOptions, vdwmeth), 0,
+    {"vdwmeth", T_OBJECT_EX, offsetof(pysander_InputOptions, vdwmeth), 0,
                 "Whether to use long-range dispersion correction"},
-    {"ntb", T_OBJECT, offsetof(pysander_InputOptions, ntb), 0,
+    {"ntb", T_OBJECT_EX, offsetof(pysander_InputOptions, ntb), 0,
                 "Whether PBC are present"},
-    {"ifqnt", T_OBJECT, offsetof(pysander_InputOptions, ifqnt), 0,
+    {"ifqnt", T_OBJECT_EX, offsetof(pysander_InputOptions, ifqnt), 0,
                 "Whether to use QM/MM"},
-    {"jfastw", T_OBJECT, offsetof(pysander_InputOptions, jfastw), 0,
+    {"jfastw", T_OBJECT_EX, offsetof(pysander_InputOptions, jfastw), 0,
                 "Whether to use analytical constraint algo. for 3-pt. waters"},
 
-    {"extdiel", T_OBJECT, offsetof(pysander_InputOptions, extdiel), 0,
+    {"extdiel", T_OBJECT_EX, offsetof(pysander_InputOptions, extdiel), 0,
                 "External dielectric constant for GB"},
-    {"intdiel", T_OBJECT, offsetof(pysander_InputOptions, intdiel), 0,
+    {"intdiel", T_OBJECT_EX, offsetof(pysander_InputOptions, intdiel), 0,
                 "Internal dielectric constant for GB"},
-    {"rgbmax", T_OBJECT, offsetof(pysander_InputOptions, rgbmax), 0,
+    {"rgbmax", T_OBJECT_EX, offsetof(pysander_InputOptions, rgbmax), 0,
                 "Effective radii cutoff"},
-    {"saltcon", T_OBJECT, offsetof(pysander_InputOptions, saltcon), 0,
+    {"saltcon", T_OBJECT_EX, offsetof(pysander_InputOptions, saltcon), 0,
                 "GB salt concentration (M)"},
-    {"cut", T_OBJECT, offsetof(pysander_InputOptions, cut), 0,
+    {"cut", T_OBJECT_EX, offsetof(pysander_InputOptions, cut), 0,
                 "Nonbonded cutoff"},
-    {"dielc", T_OBJECT, offsetof(pysander_InputOptions, dielc), 0,
+    {"dielc", T_OBJECT_EX, offsetof(pysander_InputOptions, dielc), 0,
                 "dielectric constant"},
-    {"rdt", T_OBJECT, offsetof(pysander_InputOptions, rdt), 0,
+    {"rdt", T_OBJECT_EX, offsetof(pysander_InputOptions, rdt), 0,
                 "Cutoff determining when only a single effective GB radius will\n"
                 "be used when computing energies with LES"},
     {NULL} /* sentinel */
 };
 
 static PyTypeObject pysander_InputOptionsType = {
+#if PY_MAJOR_VERSION >= 3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
     PyObject_HEAD_INIT(NULL)
     0,                              // ob_size
+#endif
     "sander.pysander.InputOptions", // tp_name
     sizeof(pysander_InputOptions),  // tp_basicsize
     0,                              // tp_itemsize
@@ -261,68 +264,72 @@ pysander_EnergyTerms_dealloc(pysander_EnergyTerms* self) {
     Py_DECREF(self->rism);
     Py_DECREF(self->ct);
     Py_DECREF(self->amd_boost);
-    self->ob_type->tp_free((PyObject*)self);
+    PY_DESTROY_TYPE;
 }
 
 static PyMemberDef pysander_EnergyTermsMembers[] = {
-    {"tot", T_OBJECT, offsetof(pysander_EnergyTerms, tot), 0,
+    {"tot", T_OBJECT_EX, offsetof(pysander_EnergyTerms, tot), 0,
                 "Total potential energy"},
-    {"vdw", T_OBJECT, offsetof(pysander_EnergyTerms, vdw), 0,
+    {"vdw", T_OBJECT_EX, offsetof(pysander_EnergyTerms, vdw), 0,
                 "van der Waals energy (excluding 1-4)"},
-    {"elec", T_OBJECT, offsetof(pysander_EnergyTerms, elec), 0,
+    {"elec", T_OBJECT_EX, offsetof(pysander_EnergyTerms, elec), 0,
                 "Electrostatic energy (excluding 1-4)"},
-    {"gb", T_OBJECT, offsetof(pysander_EnergyTerms, gb), 0,
+    {"gb", T_OBJECT_EX, offsetof(pysander_EnergyTerms, gb), 0,
                 "Generalized Born polar solvation energy"},
-    {"bond", T_OBJECT, offsetof(pysander_EnergyTerms, bond), 0,
+    {"bond", T_OBJECT_EX, offsetof(pysander_EnergyTerms, bond), 0,
                 "Bond energy"},
-    {"angle", T_OBJECT, offsetof(pysander_EnergyTerms, angle), 0,
+    {"angle", T_OBJECT_EX, offsetof(pysander_EnergyTerms, angle), 0,
                 "Angle energy"},
-    {"dihedral", T_OBJECT, offsetof(pysander_EnergyTerms, dihedral), 0,
+    {"dihedral", T_OBJECT_EX, offsetof(pysander_EnergyTerms, dihedral), 0,
                 "Dihedral energy (including impropers)"},
-    {"vdw_14", T_OBJECT, offsetof(pysander_EnergyTerms, vdw_14), 0,
+    {"vdw_14", T_OBJECT_EX, offsetof(pysander_EnergyTerms, vdw_14), 0,
                 "1-4 van der Waals energy"},
-    {"elec_14", T_OBJECT, offsetof(pysander_EnergyTerms, elec_14), 0,
+    {"elec_14", T_OBJECT_EX, offsetof(pysander_EnergyTerms, elec_14), 0,
                 "1-4 electrostatic energy"},
-    {"constraint", T_OBJECT, offsetof(pysander_EnergyTerms, constraint), 0,
+    {"constraint", T_OBJECT_EX, offsetof(pysander_EnergyTerms, constraint), 0,
                 "Restraint energy"},
-    {"polar", T_OBJECT, offsetof(pysander_EnergyTerms, polar), 0,
+    {"polar", T_OBJECT_EX, offsetof(pysander_EnergyTerms, polar), 0,
                 "Polarization energy (for polarized force fields)"},
-    {"hbond", T_OBJECT, offsetof(pysander_EnergyTerms, hbond), 0,
+    {"hbond", T_OBJECT_EX, offsetof(pysander_EnergyTerms, hbond), 0,
                 "Hydrogen bond (10-12 potential) energy"},
-    {"surf", T_OBJECT, offsetof(pysander_EnergyTerms, surf), 0,
+    {"surf", T_OBJECT_EX, offsetof(pysander_EnergyTerms, surf), 0,
                 "Nonpolar solvation energy for implicit solvent"},
-    {"scf", T_OBJECT, offsetof(pysander_EnergyTerms, scf), 0,
+    {"scf", T_OBJECT_EX, offsetof(pysander_EnergyTerms, scf), 0,
                 "QM energy"},
-    {"disp", T_OBJECT, offsetof(pysander_EnergyTerms, disp), 0,
+    {"disp", T_OBJECT_EX, offsetof(pysander_EnergyTerms, disp), 0,
                 "Dispersion nonpolar solvation energy from PB"},
-    {"dvdl", T_OBJECT, offsetof(pysander_EnergyTerms, dvdl), 0,
+    {"dvdl", T_OBJECT_EX, offsetof(pysander_EnergyTerms, dvdl), 0,
                 "DV/DL from TI"},
-    {"angle_ub", T_OBJECT, offsetof(pysander_EnergyTerms, angle_ub), 0,
+    {"angle_ub", T_OBJECT_EX, offsetof(pysander_EnergyTerms, angle_ub), 0,
                 "Urey-Bradley energy (CHARMM FF only)"},
-    {"imp", T_OBJECT, offsetof(pysander_EnergyTerms, imp), 0,
+    {"imp", T_OBJECT_EX, offsetof(pysander_EnergyTerms, imp), 0,
                 "Improper torsion energy (CHARMM FF only)"},
-    {"cmap", T_OBJECT, offsetof(pysander_EnergyTerms, cmap), 0,
+    {"cmap", T_OBJECT_EX, offsetof(pysander_EnergyTerms, cmap), 0,
                 "Coupled torsion correction map energy (CHARMM only)"},
-    {"emap", T_OBJECT, offsetof(pysander_EnergyTerms, emap), 0,
+    {"emap", T_OBJECT_EX, offsetof(pysander_EnergyTerms, emap), 0,
                 "Energy map restraint energy"},
-    {"les", T_OBJECT, offsetof(pysander_EnergyTerms, les), 0,
+    {"les", T_OBJECT_EX, offsetof(pysander_EnergyTerms, les), 0,
                 "LES energy"},
-    {"noe", T_OBJECT, offsetof(pysander_EnergyTerms, noe), 0,
+    {"noe", T_OBJECT_EX, offsetof(pysander_EnergyTerms, noe), 0,
                 "NOE restraint energy"},
-    {"pb", T_OBJECT, offsetof(pysander_EnergyTerms, pb), 0,
+    {"pb", T_OBJECT_EX, offsetof(pysander_EnergyTerms, pb), 0,
                 "PB polar solvation energy"},
-    {"rism", T_OBJECT, offsetof(pysander_EnergyTerms, rism), 0,
+    {"rism", T_OBJECT_EX, offsetof(pysander_EnergyTerms, rism), 0,
                 "3D-RISM energy"},
-    {"ct", T_OBJECT, offsetof(pysander_EnergyTerms, ct), 0,
+    {"ct", T_OBJECT_EX, offsetof(pysander_EnergyTerms, ct), 0,
                 "????"},
-    {"amd_boost", T_OBJECT, offsetof(pysander_EnergyTerms, amd_boost), 0,
+    {"amd_boost", T_OBJECT_EX, offsetof(pysander_EnergyTerms, amd_boost), 0,
                 "accelerated MD boost energy"},
     {NULL} /* sentinel */
 };
 
 static PyTypeObject pysander_EnergyTermsType = {
+#if PY_MAJOR_VERSION >= 3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
     PyObject_HEAD_INIT(NULL)
     0,                              // ob_size
+#endif
     "sander.pysander.EnergyTerms",  // tp_name
     sizeof(pysander_EnergyTerms),   // tp_basicsize
     0,                              // tp_itemsize
@@ -434,10 +441,15 @@ typedef struct {
     PyObject *qm_theory;        // String, length 12
 } pysander_QmInputOptions;
 
-#define ASSIGN_INT(var) self->var = PyInt_FromLong(inp.var)
 #define ASSIGN_FLOAT(var) self->var = PyFloat_FromDouble(inp.var)
 #define ASSIGN_LIST(var, len) self->var = PyList_New(len)
-#define ASSIGN_STRING(var, val) self->var = PyString_FromString(val)
+#if PY_MAJOR_VERSION >= 3
+#   define ASSIGN_INT(var) self->var = PyInt_FromLong(inp.var)
+#   define ASSIGN_STRING(var, val) self->var = PyUnicode_FromString(val)
+#else
+#   define ASSIGN_INT(var) self->var = PyLong_FromLong(inp.var)
+#   define ASSIGN_STRING(var, val) self->var = PyString_FromString(val)
+#endif
 
 static PyObject *
 pysander_QmInputOptions_new(PyTypeObject *type) {
@@ -599,147 +611,151 @@ static void pysander_QmInputOptions_dealloc(pysander_QmInputOptions *self) {
     Py_DECREF(self->centermask);
     Py_DECREF(self->dftb_3rd_order);
     Py_DECREF(self->qm_theory);
-    self->ob_type->tp_free((PyObject*)self);
+    PY_DESTROY_TYPE;
 }
 static PyMemberDef pysander_QmInputOptionsMembers[] = {
-    {"iqmatoms", T_OBJECT, offsetof(pysander_QmInputOptions, iqmatoms), 0,
+    {"iqmatoms", T_OBJECT_EX, offsetof(pysander_QmInputOptions, iqmatoms), 0,
         "List of atom indexes (starting from 1) to be treated using QM"},
-    {"qmgb", T_OBJECT, offsetof(pysander_QmInputOptions, qmgb), 0,
+    {"qmgb", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmgb), 0,
         "GB model to use for QM region (use InputOptions.igb instead)"},
-    {"lnk_atomic_no", T_OBJECT, offsetof(pysander_QmInputOptions, lnk_atomic_no), 0,
+    {"lnk_atomic_no", T_OBJECT_EX, offsetof(pysander_QmInputOptions, lnk_atomic_no), 0,
         "Atomic number of element to use as link atoms"},
-    {"ndiis_matrices", T_OBJECT, offsetof(pysander_QmInputOptions, ndiis_matrices), 0,
+    {"ndiis_matrices", T_OBJECT_EX, offsetof(pysander_QmInputOptions, ndiis_matrices), 0,
         "Number of previous error matrices to use in DIIS convergence"},
-    {"ndiis_attempts", T_OBJECT, offsetof(pysander_QmInputOptions, ndiis_attempts), 0,
+    {"ndiis_attempts", T_OBJECT_EX, offsetof(pysander_QmInputOptions, ndiis_attempts), 0,
         "Number of DIIS attempts"},
-    {"lnk_method", T_OBJECT, offsetof(pysander_QmInputOptions, lnk_method), 0,
+    {"lnk_method", T_OBJECT_EX, offsetof(pysander_QmInputOptions, lnk_method), 0,
         "Link atom method"},
-    {"qmcharge", T_OBJECT, offsetof(pysander_QmInputOptions, qmcharge), 0,
+    {"qmcharge", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmcharge), 0,
         "Charge of QM region (integer)"},
-    {"corecharge", T_OBJECT, offsetof(pysander_QmInputOptions, corecharge), 0,
+    {"corecharge", T_OBJECT_EX, offsetof(pysander_QmInputOptions, corecharge), 0,
         "Charge of QM core region (integer)"},
-    {"buffercharge", T_OBJECT, offsetof(pysander_QmInputOptions, buffercharge), 0,
+    {"buffercharge", T_OBJECT_EX, offsetof(pysander_QmInputOptions, buffercharge), 0,
         "Charge of QM buffer region (integer)"},
-    {"spin", T_OBJECT, offsetof(pysander_QmInputOptions, spin), 0,
+    {"spin", T_OBJECT_EX, offsetof(pysander_QmInputOptions, spin), 0,
         "Spin multiplicity"},
-    {"qmqmdx", T_OBJECT, offsetof(pysander_QmInputOptions, qmqmdx), 0,
+    {"qmqmdx", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmqmdx), 0,
         "Analytical (1) or numerical (2) QM-QM derivatives"},
-    {"verbosity", T_OBJECT, offsetof(pysander_QmInputOptions, verbosity), 0,
+    {"verbosity", T_OBJECT_EX, offsetof(pysander_QmInputOptions, verbosity), 0,
         "QM/MM verbosity (should always be 0)"},
-    {"printcharges", T_OBJECT, offsetof(pysander_QmInputOptions, printcharges), 0,
+    {"printcharges", T_OBJECT_EX, offsetof(pysander_QmInputOptions, printcharges), 0,
         "Whether to print QM charges to stdout"},
-    {"printdipole", T_OBJECT, offsetof(pysander_QmInputOptions, printdipole), 0,
+    {"printdipole", T_OBJECT_EX, offsetof(pysander_QmInputOptions, printdipole), 0,
         "Whether to print QM dipoles to stdout"},
-    {"print_eigenvalues", T_OBJECT, offsetof(pysander_QmInputOptions, print_eigenvalues), 0,
+    {"print_eigenvalues", T_OBJECT_EX, offsetof(pysander_QmInputOptions, print_eigenvalues), 0,
         "Whether to print QM eigenvalues"},
-    {"peptide_corr", T_OBJECT, offsetof(pysander_QmInputOptions, peptide_corr), 0,
+    {"peptide_corr", T_OBJECT_EX, offsetof(pysander_QmInputOptions, peptide_corr), 0,
         "Don't (0) or Do (1) apply a correction to peptide linkages"},
-    {"itrmax", T_OBJECT, offsetof(pysander_QmInputOptions, itrmax), 0,
+    {"itrmax", T_OBJECT_EX, offsetof(pysander_QmInputOptions, itrmax), 0,
         "Maximum number of SCF iterations"},
-    {"printbondorders", T_OBJECT, offsetof(pysander_QmInputOptions, printbondorders), 0,
+    {"printbondorders", T_OBJECT_EX, offsetof(pysander_QmInputOptions, printbondorders), 0,
         "Whether to print bond orders to stdout"},
-    {"qmshake", T_OBJECT, offsetof(pysander_QmInputOptions, qmshake), 0,
+    {"qmshake", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmshake), 0,
         "Whether to constrain H-heavy bonds in QM region using SHAKE"},
-    {"qmmmrij_incore", T_OBJECT, offsetof(pysander_QmInputOptions, qmmmrij_incore), 0,
+    {"qmmmrij_incore", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmmmrij_incore), 0,
         "????"},
-    {"qmqm_erep_incore", T_OBJECT, offsetof(pysander_QmInputOptions, qmqm_erep_incore), 0,
+    {"qmqm_erep_incore", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmqm_erep_incore), 0,
         "????"},
-    {"pseudo_diag", T_OBJECT, offsetof(pysander_QmInputOptions, pseudo_diag), 0,
+    {"pseudo_diag", T_OBJECT_EX, offsetof(pysander_QmInputOptions, pseudo_diag), 0,
         "Whether to use pseudo-diagonalizer for Fock matrix"},
-    {"qm_ewald", T_OBJECT, offsetof(pysander_QmInputOptions, qm_ewald), 0,
+    {"qm_ewald", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qm_ewald), 0,
         "Whether to use Ewald in QM/MM (overridden by other settings)"},
-    {"qm_pme", T_OBJECT, offsetof(pysander_QmInputOptions, qm_pme), 0,
+    {"qm_pme", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qm_pme), 0,
         "Whether to use Particle mesh Ewald in QM/MM (overridden by other settings)"},
-    {"kmaxqx", T_OBJECT, offsetof(pysander_QmInputOptions, kmaxqx), 0,
+    {"kmaxqx", T_OBJECT_EX, offsetof(pysander_QmInputOptions, kmaxqx), 0,
         "Max number of k-space vectors to use in X dimension for QM PME/Ewald"},
-    {"kmaxqy", T_OBJECT, offsetof(pysander_QmInputOptions, kmaxqy), 0,
+    {"kmaxqy", T_OBJECT_EX, offsetof(pysander_QmInputOptions, kmaxqy), 0,
         "Max number of k-space vectors to use in Y dimension for QM PME/Ewald"},
-    {"kmaxqz", T_OBJECT, offsetof(pysander_QmInputOptions, kmaxqz), 0,
+    {"kmaxqz", T_OBJECT_EX, offsetof(pysander_QmInputOptions, kmaxqz), 0,
         "Max number of k-space vectors to use in Z dimension for QM PME/Ewald"},
-    {"ksqmaxq", T_OBJECT, offsetof(pysander_QmInputOptions, ksqmaxq), 0,
+    {"ksqmaxq", T_OBJECT_EX, offsetof(pysander_QmInputOptions, ksqmaxq), 0,
         "Max number of k^2 values for spherical cutoff in recip. space (QM PME/Ewald)"},
-    {"qmmm_int", T_OBJECT, offsetof(pysander_QmInputOptions, qmmm_int), 0,
+    {"qmmm_int", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmmm_int), 0,
         "Controls QM-MM interactions (see AmberTools manual)"},
-    {"adjust_q", T_OBJECT, offsetof(pysander_QmInputOptions, adjust_q), 0,
+    {"adjust_q", T_OBJECT_EX, offsetof(pysander_QmInputOptions, adjust_q), 0,
         "Method to control how charges are adjusted to conserve charge"},
-    {"tight_p_conv", T_OBJECT, offsetof(pysander_QmInputOptions, tight_p_conv), 0,
+    {"tight_p_conv", T_OBJECT_EX, offsetof(pysander_QmInputOptions, tight_p_conv), 0,
         "Controls tightness of convergence criteria on density matrix in SCF"},
-    {"diag_routine", T_OBJECT, offsetof(pysander_QmInputOptions, diag_routine), 0,
+    {"diag_routine", T_OBJECT_EX, offsetof(pysander_QmInputOptions, diag_routine), 0,
         "Controls which diagonalization routine is used for the Fock matrix"},
-    {"density_predict", T_OBJECT, offsetof(pysander_QmInputOptions, density_predict), 0,
+    {"density_predict", T_OBJECT_EX, offsetof(pysander_QmInputOptions, density_predict), 0,
         "Initial guess method (??? -- just use default)"},
-    {"fock_predict", T_OBJECT, offsetof(pysander_QmInputOptions, fock_predict), 0,
+    {"fock_predict", T_OBJECT_EX, offsetof(pysander_QmInputOptions, fock_predict), 0,
         "Initial guess for the Fock matrix"},
-    {"vsolv", T_OBJECT, offsetof(pysander_QmInputOptions, vsolv), 0,
+    {"vsolv", T_OBJECT_EX, offsetof(pysander_QmInputOptions, vsolv), 0,
         "Controls inclusion of solvent in QM region in adaptive QM/MM"},
-    {"dftb_maxiter", T_OBJECT, offsetof(pysander_QmInputOptions, dftb_maxiter), 0,
+    {"dftb_maxiter", T_OBJECT_EX, offsetof(pysander_QmInputOptions, dftb_maxiter), 0,
         "Max number of SCF iterations for DFTB calculations"},
-    {"dftb_disper", T_OBJECT, offsetof(pysander_QmInputOptions, dftb_disper), 0,
+    {"dftb_disper", T_OBJECT_EX, offsetof(pysander_QmInputOptions, dftb_disper), 0,
         "Whether to use a dispersion correction for SCC-DFTB"},
-    {"dftb_chg", T_OBJECT, offsetof(pysander_QmInputOptions, dftb_chg), 0,
+    {"dftb_chg", T_OBJECT_EX, offsetof(pysander_QmInputOptions, dftb_chg), 0,
         "Type of charges to report (0 -- Mulliken or 2 -- CM3 charges)"},
-    {"abfqmmm", T_OBJECT, offsetof(pysander_QmInputOptions, abfqmmm), 0,
+    {"abfqmmm", T_OBJECT_EX, offsetof(pysander_QmInputOptions, abfqmmm), 0,
         "Whether to do adaptive biased force QM/MM"},
-    {"hot_spot", T_OBJECT, offsetof(pysander_QmInputOptions, hot_spot), 0,
+    {"hot_spot", T_OBJECT_EX, offsetof(pysander_QmInputOptions, hot_spot), 0,
         "Whether to use hot spot-like adaptive QM/MM"},
-    {"qmmm_switch", T_OBJECT, offsetof(pysander_QmInputOptions, qmmm_switch), 0,
+    {"qmmm_switch", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmmm_switch), 0,
         "Whether to switch QM/MM non-bonded interactions"},
-    {"core_iqmatoms", T_OBJECT, offsetof(pysander_QmInputOptions, core_iqmatoms), 0,
+    {"core_iqmatoms", T_OBJECT_EX, offsetof(pysander_QmInputOptions, core_iqmatoms), 0,
         "List of QM atom indexes (starting from 1) in the core QM region"},
-    {"buffer_iqmatoms", T_OBJECT, offsetof(pysander_QmInputOptions, buffer_iqmatoms), 0,
+    {"buffer_iqmatoms", T_OBJECT_EX, offsetof(pysander_QmInputOptions, buffer_iqmatoms), 0,
         "List of QM atom indexes (starting from 1) in the buffer QM region"},
-    {"qmcut", T_OBJECT, offsetof(pysander_QmInputOptions, qmcut), 0,
+    {"qmcut", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmcut), 0,
         "Cutoff for QM-MM nonbonded interactions"},
-    {"lnk_dis", T_OBJECT, offsetof(pysander_QmInputOptions, lnk_dis), 0,
+    {"lnk_dis", T_OBJECT_EX, offsetof(pysander_QmInputOptions, lnk_dis), 0,
         "Bond distance for bonds with link atoms"},
-    {"scfconv", T_OBJECT, offsetof(pysander_QmInputOptions, scfconv), 0,
+    {"scfconv", T_OBJECT_EX, offsetof(pysander_QmInputOptions, scfconv), 0,
         "SCF convergence criteria"},
-    {"errconv", T_OBJECT, offsetof(pysander_QmInputOptions, errconv), 0,
+    {"errconv", T_OBJECT_EX, offsetof(pysander_QmInputOptions, errconv), 0,
         "SCF tolerance on the error matrix"},
-    {"dftb_telec", T_OBJECT, offsetof(pysander_QmInputOptions, dftb_telec), 0,
+    {"dftb_telec", T_OBJECT_EX, offsetof(pysander_QmInputOptions, dftb_telec), 0,
         "Electronic temperature (K) used to accelerate SCC-DFTB convergence"},
-    {"dftb_telec_step", T_OBJECT, offsetof(pysander_QmInputOptions, dftb_telec_step), 0,
+    {"dftb_telec_step", T_OBJECT_EX, offsetof(pysander_QmInputOptions, dftb_telec_step), 0,
         "Step size for dftb_telec changes"},
-    {"fockp_d1", T_OBJECT, offsetof(pysander_QmInputOptions, fockp_d1), 0,
+    {"fockp_d1", T_OBJECT_EX, offsetof(pysander_QmInputOptions, fockp_d1), 0,
         "????"},
-    {"fockp_d2", T_OBJECT, offsetof(pysander_QmInputOptions, fockp_d2), 0,
+    {"fockp_d2", T_OBJECT_EX, offsetof(pysander_QmInputOptions, fockp_d2), 0,
         "????"},
-    {"fockp_d3", T_OBJECT, offsetof(pysander_QmInputOptions, fockp_d3), 0,
+    {"fockp_d3", T_OBJECT_EX, offsetof(pysander_QmInputOptions, fockp_d3), 0,
         "????"},
-    {"fockp_d4", T_OBJECT, offsetof(pysander_QmInputOptions, fockp_d4), 0,
+    {"fockp_d4", T_OBJECT_EX, offsetof(pysander_QmInputOptions, fockp_d4), 0,
         "????"},
-    {"damp", T_OBJECT, offsetof(pysander_QmInputOptions, damp), 0,
+    {"damp", T_OBJECT_EX, offsetof(pysander_QmInputOptions, damp), 0,
         "Damping factor"},
-    {"vshift", T_OBJECT, offsetof(pysander_QmInputOptions, vshift), 0,
+    {"vshift", T_OBJECT_EX, offsetof(pysander_QmInputOptions, vshift), 0,
         "Level shifting control"},
-    {"kappa", T_OBJECT, offsetof(pysander_QmInputOptions, kappa), 0,
+    {"kappa", T_OBJECT_EX, offsetof(pysander_QmInputOptions, kappa), 0,
         "Set automatically to control salt concentration in GB calcs (do not use)"},
-    {"pseudo_diag_criteria", T_OBJECT, offsetof(pysander_QmInputOptions, pseudo_diag_criteria), 0,
+    {"pseudo_diag_criteria", T_OBJECT_EX, offsetof(pysander_QmInputOptions, pseudo_diag_criteria), 0,
         "Pseudo diagonalization 'convergence' criteria"},
-    {"min_heavy_mass", T_OBJECT, offsetof(pysander_QmInputOptions, min_heavy_mass), 0,
+    {"min_heavy_mass", T_OBJECT_EX, offsetof(pysander_QmInputOptions, min_heavy_mass), 0,
         "Smallest atomic mass to consider as a \"heavy\" atom"},
-    {"r_switch_hi", T_OBJECT, offsetof(pysander_QmInputOptions, r_switch_hi), 0,
+    {"r_switch_hi", T_OBJECT_EX, offsetof(pysander_QmInputOptions, r_switch_hi), 0,
         "Distance at which switched interactions are 0 (should be qmcut)"},
-    {"r_switch_lo", T_OBJECT, offsetof(pysander_QmInputOptions, r_switch_lo), 0,
+    {"r_switch_lo", T_OBJECT_EX, offsetof(pysander_QmInputOptions, r_switch_lo), 0,
         "Distance at which switching function turns on (default qmcut-2)"},
-    {"qmmask", T_OBJECT, offsetof(pysander_QmInputOptions, qmmask), 0,
+    {"qmmask", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qmmask), 0,
         "Amber-style atom mask to specify QM region"},
-    {"coremask", T_OBJECT, offsetof(pysander_QmInputOptions, coremask), 0,
+    {"coremask", T_OBJECT_EX, offsetof(pysander_QmInputOptions, coremask), 0,
         "Amber-style atom mask to specify core QM region"},
-    {"buffermask", T_OBJECT, offsetof(pysander_QmInputOptions, buffermask), 0,
+    {"buffermask", T_OBJECT_EX, offsetof(pysander_QmInputOptions, buffermask), 0,
         "Amber-style atom mask to specify buffer QM region"},
-    {"centermask", T_OBJECT, offsetof(pysander_QmInputOptions, centermask), 0,
+    {"centermask", T_OBJECT_EX, offsetof(pysander_QmInputOptions, centermask), 0,
         "Amber-style atom mask to specify center of QM region"},
-    {"dftb_3rd_order", T_OBJECT, offsetof(pysander_QmInputOptions, dftb_3rd_order), 0,
+    {"dftb_3rd_order", T_OBJECT_EX, offsetof(pysander_QmInputOptions, dftb_3rd_order), 0,
         "Whether to use DFTB 3rd-order correction"},
-    {"qm_theory", T_OBJECT, offsetof(pysander_QmInputOptions, qm_theory), 0,
+    {"qm_theory", T_OBJECT_EX, offsetof(pysander_QmInputOptions, qm_theory), 0,
         "Level of QM theory to use (see AmberTools manual for options)"},
     {NULL} /* sentinel */
 };
 
 static PyTypeObject pysander_QmInputOptionsType = {
+#if PY_MAJOR_VERSION >= 3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
     PyObject_HEAD_INIT(NULL)
     0,                              // ob_size
+#endif
     "sander.pysander.QmInputOptions",// tp_name
     sizeof(pysander_QmInputOptions),  // tp_basicsize
     0,                              // tp_itemsize

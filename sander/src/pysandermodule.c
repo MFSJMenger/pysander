@@ -11,6 +11,9 @@ typedef int Py_ssize_t;
 #   define PY_SSIZE_T_MIN INT_MIN
 #endif
 
+// A set of macros for use with Py3
+#include "CompatibilityMacros.h"
+
 // Standard C includes
 #include <stdio.h>
 #include <string.h>
@@ -158,11 +161,12 @@ pysander_setup(PyObject *self, PyObject *args) {
 
         // Error checking on the string input options
         size_t i;
-        if (!PyString_Check(qm_inp->qmmask)) {
+        if (!PyObject_IS_STRING(qm_inp->qmmask)) {
             PyErr_SetString(PyExc_ValueError,
                             "qmmask must be a string");
             return NULL;
-        } else if (PyString_Size(qm_inp->qmmask) >= 8192) {
+        }
+        if (PyString_Size(qm_inp->qmmask) >= 8192) {
             PyErr_SetString(PyExc_ValueError,
                             "qmmask must be smaller than 8192 characters");
             return NULL;
@@ -525,22 +529,29 @@ static struct PyModuleDef moduledef = {
 };
 #endif
 
-void initpysander(void) {
-#if PY_MAJOR_VERSION >= 3
-    PyModule_Create(&moduledef);
-#else
+PyMODINIT_FUNC
+initpysander(void) {
     PyObject *m;
+
+#if PY_MAJOR_VERSION >= 3
     // Type declarations
+    if (PyType_Ready(&pysander_InputOptionsType) < 0)
+        return NULL;
+    if (PyType_Ready(&pysander_EnergyTermsType) < 0)
+        return NULL;
+    if (PyType_Ready(&pysander_QmInputOptionsType) < 0)
+        return NULL;
+    m = PyModule_Create(&moduledef);
+#else
     if (PyType_Ready(&pysander_InputOptionsType))
         return;
     if (PyType_Ready(&pysander_EnergyTermsType))
         return;
     if (PyType_Ready(&pysander_QmInputOptionsType))
         return;
-
-    // Initialize the module
     m = Py_InitModule3("pysander", pysanderMethods,
                 "Python interface into sander energy and force evaluation");
+#endif
 
     // Now add the types
     Py_INCREF(&pysander_InputOptionsType);
@@ -549,5 +560,8 @@ void initpysander(void) {
     PyModule_AddObject(m, "EnergyTerms", (PyObject *) &pysander_EnergyTermsType);
     Py_INCREF(&pysander_QmInputOptionsType);
     PyModule_AddObject(m, "QmInputOptions", (PyObject *) &pysander_QmInputOptionsType);
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
 #endif
 }
