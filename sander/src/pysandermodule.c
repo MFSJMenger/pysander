@@ -4,6 +4,13 @@
 #include <Python.h>
 #include "structmember.h"
 
+// Support versions of Python older than 2.5 that didn't define Py_ssize_t
+#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
+typedef int Py_ssize_t;
+#   define PY_SSIZE_T_MAX INT_MAX
+#   define PY_SSIZE_T_MIN INT_MIN
+#endif
+
 // Standard C includes
 #include <stdio.h>
 #include <string.h>
@@ -518,7 +525,7 @@ static struct PyModuleDef moduledef = {
 };
 #endif
 
-void initpysander() {
+void initpysander(void) {
 #if PY_MAJOR_VERSION >= 3
     PyModule_Create(&moduledef);
 #else

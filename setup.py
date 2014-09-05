@@ -11,20 +11,21 @@ if amberhome is None:
 
 packages = ['sander', 'sanderles']
 
+os.system('/bin/rm -fr sanderles')
 shutil.copytree('sander', 'sanderles')
 
-pysander = Extension('sander.pysander',
-                     sources=['sander/src/pysandermodule.c'],
-                     include_dirs=[os.path.join(amberhome, 'include')],
-                     library_dirs=[os.path.join(amberhome, 'lib')],
-                     libraries=['sander'])
-pysanderles = Extension('sanderles.pysander',
-                        sources=['sanderles/src/pysandermodule.c'],
-                        include_dirs=[os.path.join(amberhome, 'include')],
-                        library_dirs=[os.path.join(amberhome, 'lib')],
-                        libraries=['sanderles'],
-                        define_macros=[('LES', None)])
-
-setup(name='sanderles', ext_modules=[pysander, pysanderles], packages=packages)
-
-shutil.rmtree('sanderles')
+try:
+    pysander = Extension('sander.pysander',
+                         sources=['sander/src/pysandermodule.c'],
+                         include_dirs=[os.path.join(amberhome, 'include')],
+                         library_dirs=[os.path.join(amberhome, 'lib')],
+                         libraries=['sander'])
+    pysanderles = Extension('sanderles.pysander',
+                            sources=['sanderles/src/pysandermodule.c'],
+                            include_dirs=[os.path.join(amberhome, 'include')],
+                            library_dirs=[os.path.join(amberhome, 'lib')],
+                            libraries=['sanderles'],
+                            define_macros=[('LES', None)])
+    setup(name='sander', ext_modules=[pysander, pysanderles], packages=packages)
+finally:
+    os.system('/bin/rm -fr sanderles')

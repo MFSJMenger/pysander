@@ -1,4 +1,4 @@
-import sander.pysander as _pys
+import pysander as _pys
 
 # Add some of the pysander members directly to the sander namespace
 InputOptions = _pys.InputOptions
