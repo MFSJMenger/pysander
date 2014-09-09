@@ -312,6 +312,66 @@ pysander_setup(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static PyObject*
+pysander_set_positions(PyObject *self, PyObject *args) {
+    PyObject *pypositions;
+    double *positions;
+
+    if (!PyArg_ParseTuple(args, "O", &pypositions))
+        return NULL;
+
+    if (!IS_SETUP) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "No sander system is currently set up!");
+        return NULL;
+    }
+
+    // Check that the passed positions is legitimate
+
+    if (!PyList_Check(pypositions)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "set_positions expects a list of coordinates");
+        return NULL;
+    }
+
+    if (PyList_Size(pypositions) != 3 * sander_natom()) {
+        PyErr_SetString(PyExc_ValueError,
+                        "coordinate list must have length 3*natom");
+        return NULL;
+    }
+
+    // Now allocate the positions and assign them all
+    positions = (double *)malloc(sander_natom()*3*sizeof(double));
+
+    Py_ssize_t i;
+    for (i = 0; i < sander_natom()*3; i++) {
+        positions[(size_t)i] = PyFloat_AsDouble(PyList_GetItem(pypositions, i));
+    }
+
+    set_positions(positions);
+    free(positions);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+pysander_set_box(PyObject *self, PyObject *args) {
+
+    double a, b, c, alpha, beta, gamma;
+
+    if (!PyArg_ParseTuple(args, "dddddd", &a, &b, &c, &alpha, &beta, &gamma))
+        return NULL;
+
+    if (!IS_SETUP) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "No sander system is currently set up!");
+        return NULL;
+    }
+
+    set_box(a, b, c, alpha, beta, gamma);
+
+    Py_RETURN_NONE;
+}
+
 /* Deallocates the memory used by sander so sander can be set up and used again
  */
 static PyObject*
@@ -507,11 +567,25 @@ pysanderMethods[] = {
             "\n"
             "   forces : list\n"
             "       A list of all forces in kilocalories/mole/Angstroms"},
-#if 0
-    { "energy_forces", (PyCFunction) pysander_energy_forces, METH_NOARGS,
-            "Returns a populated SanderEnergy instance and a 3*natom-length\n"
-            "list of forces."},
-#endif
+    { "set_positions", (PyCFunction) pysander_set_positions, METH_VARARGS,
+            "Sets the active positions to the passed list of positions"},
+    { "set_box", (PyCFunction) pysander_set_box, METH_VARARGS,
+            "Sets the box dimensions of the active system.\n"
+            "\n"
+            "Parameters\n"
+            "----------\n"
+            "a : float\n"
+            "    Length of the first side of the unit cell\n"
+            "b : float\n"
+            "    Length of the second side of the unit cell\n"
+            "c : float\n"
+            "    Length of the third side of the unit cell\n"
+            "alpha : float\n"
+            "    Angle between sides b and c of the unit cell\n"
+            "beta : float\n"
+            "    Angle between sides a and c of the unit cell\n"
+            "gamma : float\n"
+            "    Angle between sides a and b of the unit cell\n"},
     {NULL}, // sentinel
 };
 
