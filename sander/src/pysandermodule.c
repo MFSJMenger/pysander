@@ -38,9 +38,11 @@ static int IS_SETUP = 0;
 static PyObject*
 pysander_setup(PyObject *self, PyObject *args) {
 
-    char *prmtop, *inpcrd;
-    PyObject *arg3, *arg4;
-    arg3 = NULL; arg4 = NULL;
+    char *prmtop;
+    double *coordinates;
+    double box[6];
+    PyObject *arg2, *arg3, *arg4, *arg5;
+    arg2 = NULL; arg3 = NULL; arg4 = NULL; arg5 = NULL;
 
     sander_input input;
     qmmm_input_options qm_input;
@@ -49,7 +51,7 @@ pysander_setup(PyObject *self, PyObject *args) {
     qm_sander_input(&qm_input);
 
     // The passed arguments
-    if (!PyArg_ParseTuple(args, "ssO|O", &prmtop, &inpcrd, &arg3, &arg4))
+    if (!PyArg_ParseTuple(args, "sOOO|O", &prmtop, &arg2, &arg3, &arg4, &arg5))
         return NULL;
 
     if (IS_SETUP) {
@@ -62,19 +64,32 @@ pysander_setup(PyObject *self, PyObject *args) {
     pysander_InputOptions *mm_inp;
     pysander_QmInputOptions *qm_inp;
 
-    if (!PyObject_TypeCheck(arg3, &pysander_InputOptionsType)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "3rd argument must be of type InputOptions");
+    if (!PyList_Check(arg2)) {
+        PyErr_SetString(PyExc_TypeError, "2nd argument must be a list");
         return NULL;
     }
 
-    if (arg4 && !PyObject_TypeCheck(arg4, &pysander_QmInputOptionsType)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "4th argument must be of type QmInputOptions");
+    if (!PyList_Check(arg3)) {
+        PyErr_SetString(PyExc_TypeError, "3rd argument must be a list");
+        return NULL;
+    } else if (PyList_Size(arg3) != 6) {
+        PyErr_SetString(PyExc_ValueError, "3rd argument must have 6 elements");
         return NULL;
     }
 
-    mm_inp = (pysander_InputOptions *) arg3;
+    if (!PyObject_TypeCheck(arg4, &pysander_InputOptionsType)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "4th argument must be of type InputOptions");
+        return NULL;
+    }
+
+    if (arg5 && !PyObject_TypeCheck(arg5, &pysander_QmInputOptionsType)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "5th argument must be of type QmInputOptions");
+        return NULL;
+    }
+
+    mm_inp = (pysander_InputOptions *) arg4;
 
     // Copy over values from mm_inp to input
     input.igb = (int) PyInt_AsLong(mm_inp->igb);
@@ -96,8 +111,8 @@ pysander_setup(PyObject *self, PyObject *args) {
     input.dielc = PyFloat_AsDouble(mm_inp->dielc);
     input.rdt = PyFloat_AsDouble(mm_inp->rdt);
 
-    if (arg4) {
-        qm_inp = (pysander_QmInputOptions *) arg4;
+    if (arg5) {
+        qm_inp = (pysander_QmInputOptions *) arg5;
         // Copy over values from qm_inp to qm_input
         qm_input.qmgb = (int) PyInt_AsLong(qm_inp->qmgb);
         qm_input.lnk_atomic_no = (int) PyInt_AsLong(qm_inp->lnk_atomic_no);
@@ -306,7 +321,16 @@ pysander_setup(PyObject *self, PyObject *args) {
         }
     }
 
-    sander_setup(prmtop, inpcrd, &input, &qm_input);
+    Py_ssize_t i;
+    coordinates = (double *)malloc(PyList_Size(arg2)*sizeof(double));
+    // Fill up the positions and box
+    for (i = 0; i < PyList_Size(arg2); i++)
+        coordinates[i] = PyFloat_AsDouble(PyList_GetItem(arg2, i));
+    for (i = 0; i < 6; i++)
+        box[i] = PyFloat_AsDouble(PyList_GetItem(arg3, i));
+
+    sander_setup(prmtop, coordinates, box, &input, &qm_input);
+    free(coordinates);
     IS_SETUP = 1;
 
     Py_RETURN_NONE;
@@ -544,7 +568,7 @@ pysander_energy_forces(PyObject *self) {
 static PyMethodDef
 pysanderMethods[] = {
     { "setup", (PyCFunction) pysander_setup, METH_VARARGS,
-            "Sets up sander calc"},
+            "Sets up sander calc (private)"},
     { "cleanup", (PyCFunction) pysander_cleanup, METH_NOARGS,
             "Cleans up sander calc"},
     { "gas_input", (PyCFunction) pysander_gas_input, METH_VARARGS,
@@ -568,7 +592,7 @@ pysanderMethods[] = {
             "   forces : list\n"
             "       A list of all forces in kilocalories/mole/Angstroms"},
     { "set_positions", (PyCFunction) pysander_set_positions, METH_VARARGS,
-            "Sets the active positions to the passed list of positions"},
+            "Sets the active positions to the passed list of positions (private)"},
     { "set_box", (PyCFunction) pysander_set_box, METH_VARARGS,
             "Sets the box dimensions of the active system.\n"
             "\n"

@@ -26,6 +26,14 @@ try:
                             library_dirs=[os.path.join(amberhome, 'lib')],
                             libraries=['sanderles'],
                             define_macros=[('LES', None)])
-    setup(name='sander', ext_modules=[pysander, pysanderles], packages=packages)
+    setup(name='sander',
+          version="15.0",
+          license='GPL v2 or later',
+          author='Jason Swails',
+          author_email='jason.swails -at- gmail.com',
+          description='SANDER energy/force evaluation',
+          ext_modules=[pysander, pysanderles],
+          packages=packages,
+    )
 finally:
     os.system('/bin/rm -fr sanderles')
