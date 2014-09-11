@@ -16,14 +16,9 @@ int PyObject_IS_STRING(PyObject *chk) {
 // PyInt -> PyLong
 #   define PyInt_FromLong PyLong_FromLong
 
-#else
+#else /* Python 2 */
 
-int PyObject_IS_STRING(PyObject *chk) {
-    return PyString_Check(chk);
-}
-
-// All of the Python2-specific macros go here
-
+#   define PyObject_IS_STRING PyString_Check
 #   define PY_DESTROY_TYPE self->ob_type->tp_free((PyObject *)self)
 
 #endif
