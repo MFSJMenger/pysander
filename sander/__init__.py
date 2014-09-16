@@ -66,5 +66,5 @@ def set_positions(positions):
     positions. Supports both lists, numpy.ndarray and numpy.ndarray objects
     """
     if hasattr(positions, 'tolist'): # works for array.array and numpy.ndarray
-        _pys.set_positions(positions.tolist())
+        return _pys.set_positions(positions.tolist())
     return _pys.set_positions(positions)
