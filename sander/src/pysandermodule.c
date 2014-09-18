@@ -99,6 +99,7 @@ pysander_setup(PyObject *self, PyObject *args) {
     input.ipb = (int) PyInt_AsLong(mm_inp->ipb);
     input.inp = (int) PyInt_AsLong(mm_inp->inp);
     input.vdwmeth = (int) PyInt_AsLong(mm_inp->vdwmeth);
+    input.ew_type = (int) PyInt_AsLong(mm_inp->ew_type);
     input.ntb = (int) PyInt_AsLong(mm_inp->ntb);
     input.ifqnt = (int) PyInt_AsLong(mm_inp->ifqnt);
     input.jfastw = (int) PyInt_AsLong(mm_inp->jfastw);
@@ -438,6 +439,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ASSIGN_INT(ipb);
     ASSIGN_INT(inp);
     ASSIGN_INT(vdwmeth);
+    ASSIGN_INT(ew_type);
     ASSIGN_INT(ntb);
     ASSIGN_INT(ifqnt);
     ASSIGN_INT(jfastw);
@@ -472,6 +474,7 @@ pysander_pme_input(PyObject *self) {
     ASSIGN_INT(ipb);
     ASSIGN_INT(inp);
     ASSIGN_INT(vdwmeth);
+    ASSIGN_INT(ew_type);
     ASSIGN_INT(ntb);
     ASSIGN_INT(ifqnt);
     ASSIGN_INT(jfastw);

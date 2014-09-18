@@ -14,6 +14,7 @@ typedef struct {
     PyObject *ipb;      // int
     PyObject *inp;      // int
     PyObject *vdwmeth;  // int
+    PyObject *ew_type;  // int
     PyObject *ntb;      // int
     PyObject *ifqnt;    // int
     PyObject *jfastw;   // int
@@ -36,6 +37,7 @@ pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->ipb);
     Py_DECREF(self->inp);
     Py_DECREF(self->vdwmeth);
+    Py_DECREF(self->ew_type);
     Py_DECREF(self->ntb);
     Py_DECREF(self->ifqnt);
     Py_DECREF(self->jfastw);
@@ -62,6 +64,7 @@ pysander_InputOptions_new(PyTypeObject *type) {
         self->ipb = PyInt_FromLong(0);
         self->inp = PyInt_FromLong(0);
         self->vdwmeth = PyInt_FromLong(0);
+        self->ew_type = PyInt_FromLong(0);
         self->ntb = PyInt_FromLong(0);
         self->ifqnt = PyInt_FromLong(0);
         self->jfastw = PyInt_FromLong(0);
@@ -93,6 +96,10 @@ static PyMemberDef pysander_InputOptionMembers[] = {
                 "PB SASA model to use"},
     {"vdwmeth", T_OBJECT_EX, offsetof(pysander_InputOptions, vdwmeth), 0,
                 "Whether to use long-range dispersion correction"},
+    {"ew_type", T_OBJECT_EX, offsetof(pysander_InputOptions, ew_type), 0,
+                "Determines whether to use PME or Ewald for long-range electrostatics\n"
+                "0 - Use PME\n"
+                "1 - Use Ewald\n"},
     {"ntb", T_OBJECT_EX, offsetof(pysander_InputOptions, ntb), 0,
                 "Whether PBC are present"},
     {"ifqnt", T_OBJECT_EX, offsetof(pysander_InputOptions, ifqnt), 0,
