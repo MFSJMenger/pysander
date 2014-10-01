@@ -10,7 +10,13 @@ __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
            'is_setup']
 
 from array import array as _array
-import pysander as _pys
+try:
+    import sander.pysander as _pys
+except ImportError:
+    raise ImportError('Could not import the compiled Python-sander interface. '
+                      'Make sure you have the Python development libraries '
+                      'installed and try rebuilding the serial installation '
+                      'of AMBER.')
 
 # Add some of the pysander members directly to the sander namespace
 InputOptions = _pys.InputOptions
