@@ -6,7 +6,8 @@ except ImportError:
     _np = None
 
 __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
-           'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box']
+           'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box',
+           'is_setup']
 
 from array import array as _array
 import pysander as _pys
@@ -20,6 +21,7 @@ gas_input = _pys.gas_input
 natom = _pys.natom
 energy_forces = _pys.energy_forces
 set_box = _pys.set_box
+is_setup = _pys.is_setup
 
 # For Python3 compatibility
 try:

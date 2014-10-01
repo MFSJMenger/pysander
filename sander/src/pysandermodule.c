@@ -330,7 +330,12 @@ pysander_setup(PyObject *self, PyObject *args) {
     for (i = 0; i < 6; i++)
         box[i] = PyFloat_AsDouble(PyList_GetItem(arg3, i));
 
-    sander_setup(prmtop, coordinates, box, &input, &qm_input);
+    if (sander_setup(prmtop, coordinates, box, &input, &qm_input)) {
+        free(coordinates);
+        PyErr_SetString(PyExc_RuntimeError, "Problem setting up sander");
+        return NULL;
+    }
+
     free(coordinates);
     IS_SETUP = 1;
 
@@ -566,6 +571,13 @@ pysander_energy_forces(PyObject *self) {
     return ret;
 }
 
+static PyObject *
+pysander_is_setup(PyObject *self) {
+    if (IS_SETUP == 0)
+        Py_RETURN_FALSE;
+    Py_RETURN_TRUE;
+}
+
 /* Python module initialization */
 
 static PyMethodDef
@@ -613,6 +625,8 @@ pysanderMethods[] = {
             "    Angle between sides a and c of the unit cell\n"
             "gamma : float\n"
             "    Angle between sides a and b of the unit cell\n"},
+    { "is_setup", (PyCFunction) pysander_is_setup, METH_NOARGS,
+            "Returns True if sander is set up and False otherwise"},
     {NULL}, // sentinel
 };
 
