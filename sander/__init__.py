@@ -11,7 +11,7 @@ __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
 
 from array import array as _array
 try:
-    import sander.pysander as _pys
+    import pysander as _pys
 except ImportError:
     raise ImportError('Could not import the compiled Python-sander interface. '
                       'Make sure you have the Python development libraries '
