@@ -425,11 +425,16 @@ pysander_cleanup(PyObject *self) {
 static PyObject*
 pysander_gas_input(PyObject *self, PyObject *args) {
 
-    long tmp = 0;
+    long tmp = 6;
     if (!PyArg_ParseTuple(args, "|i", &tmp)) {
         return NULL;
     }
     int igb = (int) tmp;
+    if (igb < 0 || igb > 10 || igb == 3 || igb == 9 || igb == 4) {
+        PyErr_SetString(PyExc_ValueError,
+                        "igb must be 0, 1, 2, 5, 6, 7, 8, or 10");
+        return NULL;
+    }
     sander_input inp;
     gas_sander_input(&inp, &igb);
     pysander_InputOptions *ret = (pysander_InputOptions *)

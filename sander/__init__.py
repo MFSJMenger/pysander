@@ -92,6 +92,10 @@ def setup(prmtop, coordinates, box, mm_options, qm_options=None):
     else:
         parm = prmtop
 
+    # Error checking
+    if mm_options.ifqnt != 0 and qm_options is None:
+        raise ValueError("qm_options must be provided if QM/MM is requested")
+
     # Call the setup routine
     if qm_options is None:
         _pys.setup(parm, coordinates, box, mm_options)
