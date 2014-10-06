@@ -436,7 +436,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
         return NULL;
     }
     sander_input inp;
-    gas_sander_input(&inp, &igb);
+    gas_sander_input(&inp, igb);
     pysander_InputOptions *ret = (pysander_InputOptions *)
             PyObject_CallObject((PyObject *) &pysander_InputOptionsType, NULL);
     if (ret == NULL)
