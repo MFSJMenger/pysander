@@ -35,8 +35,18 @@ try:
 except NameError:
     basestring = str
 
-def setup(prmtop, coordinates, box, mm_options, qm_options=None):
-    """Sets up a sander calculation
+# Ideally we'd use contextlib.contextmanager and turn the function into a
+# context manager directly as a generator. However, contextlib was added in
+# Python 2.5, and we desire to keep Python 2.4 support while still allowing the
+# use of the context manager. As a result, we turn setup into a class (yuck)
+# with __enter__ and __exit__ methods that implement the context manager for
+# Python 2.5+, or do nothing in Python 2.4. It behaves the same way that the
+# function would.
+
+class setup(object):
+    """ Sets up a sander calculation. This supports acting like a context
+    manager such that the cleanup routine is called upon exiting the context. It
+    can also be called as a standalone function.
 
     Parameters
     ----------
@@ -52,55 +62,99 @@ def setup(prmtop, coordinates, box, mm_options, qm_options=None):
         struct with sander options
     qm_options : QmInputOptions (optional)
         struct with the QM options in sander QM/MM calculations
+
+    Examples
+    --------
+
+    The following are equivalent invocations which each make sure that the
+    sander data structures are cleaned up afterwards
+
+    >>> with sander.setup("prmtop", inpcrd.coords, inpcrd.box, mm_options):
+    ...     e, f = sander.energy_forces()
+    ... 
+    >>> sander.is_setup()
+    False
+
+    Without a context manager (e.g., Python 2.4 and earlier), which ensures that
+    cleanup is done
+
+    >>> try:
+    ...     sander.setup("prmtop", inpcrd.coords, inpcrd.box, mm_options)
+    ...     e, f = sander.energy_forces()
+    ... finally:
+    ...     if sander.is_setup():
+    ...         sander.cleanup()
+    ... 
+    >>> sander.is_setup()
+    False
+
+    If you want the sander system to stay set up when the current function ends
+    and persist until another function call, simply do not execute a cleanup in
+    a `finally` clause and do not use a context manager
+
+    >>> sander.setup("prmtop", inpcrd.coords, inpcrd.box, mm_options)
+    >>> e, f = sander.energy_forces()
+    >>> sander.is_setup()
+    True
     """
-    # Handle the case where the coordinates are actually a restart file
-    if isinstance(coordinates, basestring):
-        # This is a restart file name. Parse it and make sure the coordinates
-        # and box
-        rst = Rst7.open(coordinates)
-        try:
-            coordinates = rst.coordinates.tolist()
-        except AttributeError:
-            coordinates = rst.coordinates
-        if rst.hasbox and not box:
+
+    def __init__(self, prmtop, coordinates, box, mm_options, qm_options=None):
+        # Handle the case where the coordinates are actually a restart file
+        if isinstance(coordinates, basestring):
+            # This is a restart file name. Parse it and make sure the coordinates
+            # and box
+            rst = Rst7.open(coordinates)
             try:
-                box = rst.box.tolist()
+                coordinates = rst.coordinates.tolist()
             except AttributeError:
-                box = rst.box
+                coordinates = rst.coordinates
+            if rst.hasbox and not box:
+                try:
+                    box = rst.box.tolist()
+                except AttributeError:
+                    box = rst.box
 
-    # Convert from numpy arrays to regular arrays
-    if hasattr(coordinates, 'tolist'): # works for numpy.ndarray and array.array
-        coordinates = coordinates.tolist()
-    if hasattr(box, 'tolist'):
-        box = box.tolist()
-    if not box:
-        box = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    try:
-        box = [float(x) for x in box]
-    except TypeError:
-        raise TypeError('box must be an iterable with 6 numerical elements')
-    if len(box) != 6:
-        raise ValueError('box must have 6 elements')
+        # Convert from numpy arrays to regular arrays
+        if hasattr(coordinates, 'tolist'): # works for numpy.ndarray and array.array
+            coordinates = coordinates.tolist()
+        if hasattr(box, 'tolist'):
+            box = box.tolist()
+        if not box:
+            box = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        try:
+            box = [float(x) for x in box]
+        except TypeError:
+            raise TypeError('box must be an iterable with 6 numerical elements')
+        if len(box) != 6:
+            raise ValueError('box must have 6 elements')
 
-    # Check if the prmtop is an AmberParm instance or not. If it is, write out a
-    # temporary prmtop file
-    if isinstance(prmtop, AmberParm):
-        parm = tempfile.mktemp(suffix='.parm7')
-        prmtop.writeParm(parm)
-    elif not isinstance(prmtop, basestring):
-        raise TypeError('prmtop must be an AmberParm or string')
-    else:
-        parm = prmtop
+        # Check if the prmtop is an AmberParm instance or not. If it is, write out a
+        # temporary prmtop file
+        if isinstance(prmtop, AmberParm):
+            parm = tempfile.mktemp(suffix='.parm7')
+            prmtop.writeParm(parm)
+        elif not isinstance(prmtop, basestring):
+            raise TypeError('prmtop must be an AmberParm or string')
+        else:
+            parm = prmtop
 
-    # Error checking
-    if mm_options.ifqnt != 0 and qm_options is None:
-        raise ValueError("qm_options must be provided if QM/MM is requested")
+        # Error checking
+        if mm_options.ifqnt != 0 and qm_options is None:
+            raise ValueError("qm_options must be provided if QM/MM is requested")
 
-    # Call the setup routine
-    if qm_options is None:
-        _pys.setup(parm, coordinates, box, mm_options)
-    else:
-        _pys.setup(parm, coordinates, box, mm_options, qm_options)
+        # Call the setup routine
+        if qm_options is None:
+            _pys.setup(parm, coordinates, box, mm_options)
+        else:
+            _pys.setup(parm, coordinates, box, mm_options, qm_options)
+
+    def __enter__(self):
+        """ Nothing needs to be done here """
+        pass
+
+    def __exit__(self, *args, **kwargs):
+        """ Make sure that sander is cleaned up """
+        if _pys.is_setup(): _pys.cleanup()
 
 def qm_input():
     """
