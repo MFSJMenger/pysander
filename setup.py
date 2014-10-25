@@ -5,6 +5,7 @@ import shutil
 import sys
 
 amberhome = os.getenv('AMBERHOME')
+assert amberhome is not None
 
 if amberhome is None:
     raise RuntimeError('AMBERHOME is not set! Cannot compile pysander')
@@ -13,17 +14,18 @@ packages = ['sander', 'sanderles']
 
 os.system('/bin/rm -fr sanderles')
 shutil.copytree('sander', 'sanderles')
+incdir = [os.path.join(amberhome, 'include'),
+          os.path.join(amberhome, 'AmberTools', 'src', 'include')]
+libdir = [os.path.join(amberhome, 'lib')]
 
 try:
     pysander = Extension('sander.pysander',
                          sources=['sander/src/pysandermodule.c'],
-                         include_dirs=[os.path.join(amberhome, 'include')],
-                         library_dirs=[os.path.join(amberhome, 'lib')],
+                         include_dirs=incdir, library_dirs=libdir,
                          libraries=['sander'])
     pysanderles = Extension('sanderles.pysander',
                             sources=['sanderles/src/pysandermodule.c'],
-                            include_dirs=[os.path.join(amberhome, 'include')],
-                            library_dirs=[os.path.join(amberhome, 'lib')],
+                            include_dirs=incdir, library_dirs=libdir,
                             libraries=['sanderles'],
                             define_macros=[('LES', None)])
     setup(name='sander',
