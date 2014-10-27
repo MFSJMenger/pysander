@@ -1,6 +1,6 @@
 include ../config.h
 
-install: clean
+install:
 	$(PYTHON) setup.py install --prefix $(AMBERHOME)
 
 clean:
