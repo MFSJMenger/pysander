@@ -1,6 +1,7 @@
 
 from distutils.core import setup, Extension
 import os
+from os.path import join
 import shutil
 import sys
 
@@ -14,19 +15,24 @@ packages = ['sander', 'sanderles']
 
 os.system('/bin/rm -fr sanderles')
 shutil.copytree('sander', 'sanderles')
-incdir = [os.path.join(amberhome, 'include'),
-          os.path.join(amberhome, 'AmberTools', 'src', 'include')]
-libdir = [os.path.join(amberhome, 'lib')]
+incdir = [join(amberhome, 'include'),
+          join(amberhome, 'AmberTools', 'src', 'include')]
+libdir = [join(amberhome, 'lib')]
 
 try:
     pysander = Extension('sander.pysander',
                          sources=['sander/src/pysandermodule.c'],
                          include_dirs=incdir, library_dirs=libdir,
-                         libraries=['sander'])
+                         libraries=['sander'],
+                         depends=['sander/src/pysandermoduletypes.c',
+                                  join(incdir[1], 'CompatibilityMacros.h')],
+    )
     pysanderles = Extension('sanderles.pysander',
                             sources=['sanderles/src/pysandermodule.c'],
                             include_dirs=incdir, library_dirs=libdir,
                             libraries=['sanderles'],
+                            depends=['sander/src/pysandermoduletypes.c',
+                                     join(incdir[1], 'CompatibilityMacros.h')],
                             define_macros=[('LES', None)])
     setup(name='sander',
           version="15.0",
