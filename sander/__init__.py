@@ -18,6 +18,12 @@ except ImportError:
                       'installed and try rebuilding the serial installation '
                       'of AMBER.')
 
+# Accept unit-ized input from OpenMM if that is the source of the input data
+try:
+    from simtk.unit import is_quantity, angstroms
+except ImportError:
+    is_quantity = lambda *args, **kwargs: False
+
 # Add some of the pysander members directly to the sander namespace
 InputOptions = _pys.InputOptions
 QmInputOptions = _pys.QmInputOptions
@@ -28,6 +34,7 @@ natom = _pys.natom
 energy_forces = _pys.energy_forces
 set_box = _pys.set_box
 is_setup = _pys.is_setup
+get_positions = _pys.get_positions
 
 # For Python3 compatibility
 try:
@@ -168,6 +175,29 @@ def set_positions(positions):
     Sets the particle positions of the active system from the passed list of
     positions. Supports both lists, numpy.ndarray and numpy.ndarray objects
     """
+    if is_quantity(positions):
+        positions = positions.value_in_unit(angstroms)
+    # Common input types will have an natom x 3 shape. I can call "flatten" on
+    # numpy arrays to solve this quickly, but in cases where the coordinates
+    # are given as a list (or tuple) of Vec3's (or tuples), this requires
+    # separate handling
+    try:
+        positions = positions.flatten()
+    except AttributeError:
+        natom = _pys.natom()
+        if len(positions) == natom:
+            p = positions
+            positions = [0.0 for i in range(natom*3)]
+            for i, x in enumerate(p):
+                i3 = i * 3
+                try:
+                    positions[i3], positions[i3+1], positions[i3+2] = x
+                except ValueError:
+                    raise ValueError('Expected iterable with shape (natom, 3)')
+        else:
+            if len(positions) != natom * 3:
+                raise ValueError('Positions array must have shape (natom, 3) '
+                                 'or (natom)')
     if hasattr(positions, 'tolist'): # works for array.array and numpy.ndarray
         return _pys.set_positions(positions.tolist())
     return _pys.set_positions(positions)

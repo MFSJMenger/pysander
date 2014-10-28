@@ -526,9 +526,9 @@ pysander_energy_forces(PyObject *self) {
     }
 
     pot_ene energies;
-    double *forces = (double *) malloc(3*sander_natom()*sizeof(double));
-
     int natom3 = 3 * sander_natom();
+    double *forces = (double *) malloc(natom3*sizeof(double));
+
     energy_forces(&energies, forces);
 
     // Now construct the return values
@@ -577,6 +577,30 @@ pysander_energy_forces(PyObject *self) {
 }
 
 static PyObject *
+pysander_get_positions(PyObject *self) {
+
+    if (IS_SETUP == 0) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Cannot get positions when no system is set up.");
+        return NULL;
+    }
+
+    int natom3 = 3 * sander_natom();
+    double *positions = (double *) malloc(natom3*sizeof(double));
+
+    PyObject *py_positions = PyList_New(natom3);
+
+    get_positions(positions);
+
+    Py_ssize_t i;
+    for (i = 0; i < (Py_ssize_t) natom3; i++)
+        PyList_SET_ITEM(py_positions, i, PyFloat_FromDouble(positions[i]));
+    free(positions);
+
+    return py_positions;
+}
+
+static PyObject *
 pysander_is_setup(PyObject *self) {
     if (IS_SETUP == 0)
         Py_RETURN_FALSE;
@@ -613,6 +637,8 @@ pysanderMethods[] = {
             "       A list of all forces in kilocalories/mole/Angstroms"},
     { "set_positions", (PyCFunction) pysander_set_positions, METH_VARARGS,
             "Sets the active positions to the passed list of positions (private)"},
+    { "get_positions", (PyCFunction) pysander_get_positions, METH_NOARGS,
+            "Returns the currently active positions as a list"},
     { "set_box", (PyCFunction) pysander_set_box, METH_VARARGS,
             "Sets the box dimensions of the active system.\n"
             "\n"
