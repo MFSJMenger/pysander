@@ -18,6 +18,8 @@ typedef struct {
     PyObject *ntb;      // int
     PyObject *ifqnt;    // int
     PyObject *jfastw;   // int
+    PyObject *ntf;      // int
+    PyObject *ntc;      // int
 
     PyObject *extdiel;  // double
     PyObject *intdiel;  // double
@@ -41,6 +43,8 @@ pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->ntb);
     Py_DECREF(self->ifqnt);
     Py_DECREF(self->jfastw);
+    Py_DECREF(self->ntf);
+    Py_DECREF(self->ntc);
 
     Py_DECREF(self->extdiel);
     Py_DECREF(self->intdiel);
@@ -68,6 +72,8 @@ pysander_InputOptions_new(PyTypeObject *type) {
         self->ntb = PyInt_FromLong(0);
         self->ifqnt = PyInt_FromLong(0);
         self->jfastw = PyInt_FromLong(0);
+        self->ntf = PyInt_FromLong(0);
+        self->ntc = PyInt_FromLong(0);
 
         self->extdiel = PyFloat_FromDouble(0.0);
         self->intdiel = PyFloat_FromDouble(0.0);
@@ -106,6 +112,10 @@ static PyMemberDef pysander_InputOptionMembers[] = {
                 "Whether to use QM/MM"},
     {"jfastw", T_OBJECT_EX, offsetof(pysander_InputOptions, jfastw), 0,
                 "Whether to use analytical constraint algo. for 3-pt. waters"},
+    {"ntf", T_OBJECT_EX, offsetof(pysander_InputOptions, ntf), 0,
+                "Which (if any) potential energy terms are omitted"},
+    {"ntc", T_OBJECT_EX, offsetof(pysander_InputOptions, ntc), 0,
+                "Flag to set whether or not SHAKE is used to constrain bonds"},
 
     {"extdiel", T_OBJECT_EX, offsetof(pysander_InputOptions, extdiel), 0,
                 "External dielectric constant for GB"},
@@ -324,7 +334,7 @@ static PyMemberDef pysander_EnergyTermsMembers[] = {
     {"rism", T_OBJECT_EX, offsetof(pysander_EnergyTerms, rism), 0,
                 "3D-RISM energy"},
     {"ct", T_OBJECT_EX, offsetof(pysander_EnergyTerms, ct), 0,
-                "????"},
+                "Charge-transfer energy (from charge-relocation module)"},
     {"amd_boost", T_OBJECT_EX, offsetof(pysander_EnergyTerms, amd_boost), 0,
                 "accelerated MD boost energy"},
     {NULL} /* sentinel */

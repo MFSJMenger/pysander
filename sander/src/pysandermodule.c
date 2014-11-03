@@ -103,6 +103,8 @@ pysander_setup(PyObject *self, PyObject *args) {
     input.ntb = (int) PyInt_AsLong(mm_inp->ntb);
     input.ifqnt = (int) PyInt_AsLong(mm_inp->ifqnt);
     input.jfastw = (int) PyInt_AsLong(mm_inp->jfastw);
+    input.ntf = (int) PyInt_AsLong(mm_inp->ntf);
+    input.ntc = (int) PyInt_AsLong(mm_inp->ntc);
 
     input.extdiel = PyFloat_AsDouble(mm_inp->extdiel);
     input.intdiel = PyFloat_AsDouble(mm_inp->intdiel);
@@ -453,6 +455,8 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ASSIGN_INT(ntb);
     ASSIGN_INT(ifqnt);
     ASSIGN_INT(jfastw);
+    ASSIGN_INT(ntf);
+    ASSIGN_INT(ntc);
     // Floats
     ASSIGN_FLOAT(extdiel);
     ASSIGN_FLOAT(intdiel);
@@ -488,6 +492,8 @@ pysander_pme_input(PyObject *self) {
     ASSIGN_INT(ntb);
     ASSIGN_INT(ifqnt);
     ASSIGN_INT(jfastw);
+    ASSIGN_INT(ntf);
+    ASSIGN_INT(ntc);
     // Floats
     ASSIGN_FLOAT(extdiel);
     ASSIGN_FLOAT(intdiel);
