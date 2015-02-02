@@ -139,7 +139,7 @@ class setup(object):
         # temporary prmtop file
         if isinstance(prmtop, AmberParm):
             parm = tempfile.mktemp(suffix='.parm7')
-            prmtop.writeParm(parm)
+            prmtop.write_parm(parm)
         elif not isinstance(prmtop, basestring):
             raise TypeError('prmtop must be an AmberParm or string')
         else:
