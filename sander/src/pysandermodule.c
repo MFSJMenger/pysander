@@ -195,7 +195,7 @@ pysander_setup(PyObject *self, PyObject *args) {
                 qm_input.qmmask[i] = ' ';
         }
 
-        if (!PyString_Check(qm_inp->coremask)) {
+        if (!PyObject_IS_STRING(qm_inp->coremask)) {
             PyErr_SetString(PyExc_ValueError,
                             "coremask must be a string");
             return NULL;
@@ -210,7 +210,7 @@ pysander_setup(PyObject *self, PyObject *args) {
                 qm_input.coremask[i] = ' ';
         }
 
-        if (!PyString_Check(qm_inp->buffermask)) {
+        if (!PyObject_IS_STRING(qm_inp->buffermask)) {
             PyErr_SetString(PyExc_ValueError,
                             "buffermask must be a string");
             return NULL;
@@ -225,7 +225,7 @@ pysander_setup(PyObject *self, PyObject *args) {
                 qm_input.buffermask[i] = ' ';
         }
 
-        if (!PyString_Check(qm_inp->centermask)) {
+        if (!PyObject_IS_STRING(qm_inp->centermask)) {
             PyErr_SetString(PyExc_ValueError,
                             "centermask must be a string");
             return NULL;
@@ -240,7 +240,7 @@ pysander_setup(PyObject *self, PyObject *args) {
                 qm_input.centermask[i] = ' ';
         }
 
-        if (!PyString_Check(qm_inp->dftb_3rd_order)) {
+        if (!PyObject_IS_STRING(qm_inp->dftb_3rd_order)) {
             PyErr_SetString(PyExc_ValueError,
                             "dftb_3rd_order must be a string");
             return NULL;
@@ -255,7 +255,7 @@ pysander_setup(PyObject *self, PyObject *args) {
                 qm_input.dftb_3rd_order[i] = ' ';
         }
 
-        if (!PyString_Check(qm_inp->qm_theory)) {
+        if (!PyObject_IS_STRING(qm_inp->qm_theory)) {
             PyErr_SetString(PyExc_ValueError,
                             "qm_theory must be a string");
             return NULL;
@@ -681,11 +681,9 @@ static struct PyModuleDef moduledef = {
 };
 #endif
 
-PyMODINIT_FUNC
-initpysander(void) {
-    PyObject *m;
-
 #if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC
+PyInit_pysander(void) {
     // Type declarations
     if (PyType_Ready(&pysander_InputOptionsType) < 0)
         return NULL;
@@ -693,15 +691,17 @@ initpysander(void) {
         return NULL;
     if (PyType_Ready(&pysander_QmInputOptionsType) < 0)
         return NULL;
-    m = PyModule_Create(&moduledef);
+    PyObject* m = PyModule_Create(&moduledef);
 #else
+PyMODINIT_FUNC
+initpysander(void) {
     if (PyType_Ready(&pysander_InputOptionsType))
         return;
     if (PyType_Ready(&pysander_EnergyTermsType))
         return;
     if (PyType_Ready(&pysander_QmInputOptionsType))
         return;
-    m = Py_InitModule3("pysander", pysanderMethods,
+    PyObject* m = Py_InitModule3("pysander", pysanderMethods,
                 "Python interface into sander energy and force evaluation");
 #endif
 
