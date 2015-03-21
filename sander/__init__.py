@@ -1,6 +1,7 @@
 from chemistry.amber import AmberParm, Rst7
 from chemistry import unit as u
 import tempfile
+import sys as _sys
 try:
     import numpy as _np
 except ImportError:
@@ -12,7 +13,10 @@ __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
 
 from array import array as _array
 try:
-    import pysander as _pys
+    if _sys.version_info[0] > 2:
+        exec('from . import pysander as _pys')
+    else:
+        exec('import pysander as _pys')
 except ImportError:
     raise ImportError('Could not import the compiled Python-sander interface. '
                       'Make sure you have the Python development libraries '
