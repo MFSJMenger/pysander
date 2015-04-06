@@ -1,7 +1,7 @@
 include ../config.h
 
 install:
-	$(PYTHON) setup.py install --prefix $(AMBERHOME)
+	$(PYTHON) setup.py install $(PYTHON_INSTALL)
 
 clean:
 	/bin/rm -fr build/
