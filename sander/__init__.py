@@ -19,7 +19,7 @@ try:
         exec('import pysander as _pys')
 except ImportError:
     raise ImportError('Could not import the compiled Python-sander interface. '
-                      'Make sure you add $AMBERHOME/lib to LD_LIBRARY_PATH or'
+                      'Make sure you add $AMBERHOME/lib to LD_LIBRARY_PATH or '
                       'Make sure you have the Python development libraries '
                       'installed and try rebuilding the serial installation '
                       'of AMBER.')
