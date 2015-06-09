@@ -1,7 +1,11 @@
-from chemistry.amber import AmberParm, Rst7
-from chemistry import unit as u
+from __future__ import print_function, division, absolute_import
+try:
+    from parmed.amber import AmberParm, Rst7
+    from chemistry import unit as u
+except ImportError:
+    from chemistry.amber import AmberParm, Rst7
+    from chemistry import unit as u
 import tempfile
-import sys as _sys
 try:
     import numpy as _np
 except ImportError:
@@ -11,24 +15,14 @@ __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
            'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box',
            'is_setup', 'EnergyTerms']
 
-from array import array as _array
 try:
-    if _sys.version_info[0] > 2:
-        exec('from . import pysander as _pys')
-    else:
-        exec('import pysander as _pys')
+    import .pysander as _pys
 except ImportError:
     raise ImportError('Could not import the compiled Python-sander interface. '
                       'Make sure you add $AMBERHOME/lib to LD_LIBRARY_PATH or '
                       'Make sure you have the Python development libraries '
                       'installed and try rebuilding the serial installation '
                       'of AMBER.')
-
-# Accept unit-ized input from OpenMM if that is the source of the input data
-try:
-    from simtk.unit import is_quantity, angstroms
-except ImportError:
-    is_quantity = lambda *args, **kwargs: False
 
 # If set to True, units are applied to the resulting output. Otherwise,
 # everything is left unitless (in AKMA units)
@@ -52,6 +46,7 @@ def _strip_units(obj):
     """
     if u.is_quantity(obj):
         return obj.value_in_unit_system(u.akma_unit_system)
+    return obj
 
 def _strip_units_from_struct(struct):
     """
@@ -65,6 +60,7 @@ def _strip_units_from_struct(struct):
 def _apply_units_to_struct(struct, unit):
     """ Applies the given unit to all members of the struct """
     for attr in dir(struct):
+        if attr.startswith('_'): continue
         val = getattr(struct, attr)
         setattr(struct, attr, val*unit)
     return struct
@@ -75,13 +71,8 @@ try:
 except NameError:
     basestring = str
 
-# Ideally we'd use contextlib.contextmanager and turn the function into a
-# context manager directly as a generator. However, contextlib was added in
-# Python 2.5, and we desire to keep Python 2.4 support while still allowing the
-# use of the context manager. As a result, we turn setup into a class (yuck)
-# with __enter__ and __exit__ methods that implement the context manager for
-# Python 2.5+, or do nothing in Python 2.4. It behaves the same way that the
-# function would.
+# Use a class instead of a function to work like a context manager. For all
+# intents and purposes, it behaves exactly like a function would
 
 class setup(object):
     """ Sets up a sander calculation. This supports acting like a context
@@ -115,8 +106,7 @@ class setup(object):
     >>> sander.is_setup()
     False
 
-    Without a context manager (e.g., Python 2.4 and earlier), which ensures that
-    cleanup is done
+    Without a context manager
 
     >>> try:
     ...     sander.setup("prmtop", inpcrd.coords, inpcrd.box, mm_options)
@@ -214,8 +204,8 @@ def set_positions(positions):
         The atomic positions. They can have units of length. They can have the
         shapes (natom*3,) or (natom, 3)
     """
-    if is_quantity(positions):
-        positions = positions.value_in_unit(angstroms)
+    if u.is_quantity(positions):
+        positions = positions.value_in_unit(u.angstroms)
     # Common input types will have an natom x 3 shape. I can call "flatten" on
     # numpy arrays to solve this quickly, but in cases where the coordinates
     # are given as a list (or tuple) of Vec3's (or tuples), this requires
@@ -288,7 +278,7 @@ def energy_forces(as_numpy=False):
     global APPLY_UNITS
     e, f = _pys.energy_forces()
     if as_numpy:
-        f = np.asarray(f)
+        f = _np.asarray(f)
     if APPLY_UNITS:
         return (_apply_units_to_struct(e, u.kilocalories_per_mole),
                 u.Quantity(f, u.kilocalories_per_mole/u.angstroms))
