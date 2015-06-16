@@ -1,7 +1,7 @@
 from __future__ import print_function, division, absolute_import
 try:
     from parmed.amber import AmberParm, Rst7
-    from chemistry import unit as u
+    from parmed import unit as u
 except ImportError:
     from chemistry.amber import AmberParm, Rst7
     from chemistry import unit as u
@@ -16,7 +16,7 @@ __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
            'is_setup', 'EnergyTerms']
 
 try:
-    import .pysander as _pys
+    from . import pysander as _pys
 except ImportError:
     raise ImportError('Could not import the compiled Python-sander interface. '
                       'Make sure you add $AMBERHOME/lib to LD_LIBRARY_PATH or '
