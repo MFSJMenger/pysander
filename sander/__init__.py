@@ -122,13 +122,13 @@ class setup(object):
             # and box
             rst = Rst7.open(coordinates)
             coordinates = rst.coordinates
-            if rst.hasbox and not box:
+            if rst.hasbox and (box is None or box is False):
                 box = rst.box
 
         # Convert from numpy arrays to regular arrays
         coordinates = _np.array(coordinates, copy=False, subok=True)
         coordinates = coordinates.flatten().tolist()
-        if not box:
+        if box is None or box is False:
             box = _np.zeros(6)
         else:
             box = _np.array([float(x) for x in box])
