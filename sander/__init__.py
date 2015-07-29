@@ -6,10 +6,6 @@ from parmed import unit as u
 from parmed.utils.six import string_types
 import numpy as _np
 
-#__all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
-#           'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box',
-#           'is_setup', 'EnergyTerms']
-
 try:
     from . import pysander as _pys
 except ImportError:
@@ -23,15 +19,6 @@ except ImportError:
 # everything is left unitless (in AKMA units)
 APPLY_UNITS = False
 
-# Add some of the pysander members directly to the sander namespace
-#InputOptions = _pys.InputOptions
-#QmInputOptions = _pys.QmInputOptions
-#EnergyTerms = _pys.EnergyTerms
-#cleanup = _pys.cleanup
-#pme_input = _pys.pme_input
-#gas_input = _pys.gas_input
-#natom = _pys.natom
-#is_setup = _pys.is_setup
 
 # To help with dimensional analysis handling
 def _strip_units(obj):
@@ -123,7 +110,7 @@ class sander(object):
         self.cleanup = _pys.cleanup
         self.pme_input = _pys.pme_input
         self.gas_input = _pys.gas_input
-        self.natom = _pys.natom
+        self._natom = _pys.natom
         self.is_setup = _pys.is_setup
 
     def setup(self, prmtop, coordinates, box, mm_options, qm_options=None):
@@ -181,6 +168,10 @@ class sander(object):
         gas_input and pme_input -- QmInputOptions can be instantiated directly
         """
         return QmInputOptions()
+
+    @property
+    def natom(self):
+        return self._natom()
 
     @property
     def positions(self):
