@@ -1,15 +1,9 @@
 from __future__ import print_function, division, absolute_import
-try:
-    from parmed.amber import AmberParm, Rst7
-    from parmed import unit as u
-except ImportError:
-    from chemistry.amber import AmberParm, Rst7
-    from chemistry import unit as u
 import tempfile
-try:
-    import numpy as _np
-except ImportError:
-    _np = None
+from parmed.amber import AmberParm, Rst7
+from parmed import unit as u
+from parmed.utils.six import string_types
+import numpy as _np
 
 __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
            'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box',
@@ -65,15 +59,8 @@ def _apply_units_to_struct(struct, unit):
         setattr(struct, attr, val*unit)
     return struct
 
-# For Python3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 # Use a class instead of a function to work like a context manager. For all
 # intents and purposes, it behaves exactly like a function would
-
 class setup(object):
     """ Sets up a sander calculation. This supports acting like a context
     manager such that the cleanup routine is called upon exiting the context. It
@@ -130,40 +117,31 @@ class setup(object):
 
     def __init__(self, prmtop, coordinates, box, mm_options, qm_options=None):
         # Handle the case where the coordinates are actually a restart file
-        if isinstance(coordinates, basestring):
+        if isinstance(coordinates, string_types):
             # This is a restart file name. Parse it and make sure the coordinates
             # and box
             rst = Rst7.open(coordinates)
-            try:
-                coordinates = rst.coordinates.tolist()
-            except AttributeError:
-                coordinates = rst.coordinates
+            coordinates = rst.coordinates
             if rst.hasbox and not box:
-                try:
-                    box = rst.box.tolist()
-                except AttributeError:
-                    box = rst.box
+                box = rst.box
 
         # Convert from numpy arrays to regular arrays
-        if hasattr(coordinates, 'tolist'): # works for numpy.ndarray and array.array
-            coordinates = coordinates.tolist()
-        if hasattr(box, 'tolist'):
-            box = box.tolist()
+        coordinates = _np.array(coordinates, copy=False, subok=True)
+        coordinates = coordinates.flatten().tolist()
         if not box:
-            box = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        try:
-            box = [float(x) for x in box]
-        except TypeError:
-            raise TypeError('box must be an iterable with 6 numerical elements')
-        if len(box) != 6:
+            box = _np.zeros(6)
+        else:
+            box = _np.array([float(x) for x in box])
+        if box.shape != (6,):
             raise ValueError('box must have 6 elements')
+        box = box.tolist()
 
         # Check if the prmtop is an AmberParm instance or not. If it is, write out a
         # temporary prmtop file
         if isinstance(prmtop, AmberParm):
             parm = tempfile.mktemp(suffix='.parm7')
             prmtop.write_parm(parm)
-        elif not isinstance(prmtop, basestring):
+        elif not isinstance(prmtop, string_types):
             raise TypeError('prmtop must be an AmberParm or string')
         else:
             parm = prmtop
@@ -210,26 +188,12 @@ def set_positions(positions):
     # numpy arrays to solve this quickly, but in cases where the coordinates
     # are given as a list (or tuple) of Vec3's (or tuples), this requires
     # separate handling
-    try:
-        positions = positions.flatten()
-    except AttributeError:
-        natom = _pys.natom()
-        if len(positions) == natom:
-            p = positions
-            positions = [0.0 for i in range(natom*3)]
-            for i, x in enumerate(p):
-                i3 = i * 3
-                try:
-                    positions[i3], positions[i3+1], positions[i3+2] = x
-                except ValueError:
-                    raise ValueError('Expected iterable with shape (natom, 3)')
-        else:
-            if len(positions) != natom * 3:
-                raise ValueError('Positions array must have shape (natom, 3) '
-                                 'or (natom)')
-    if hasattr(positions, 'tolist'): # works for array.array and numpy.ndarray
-        return _pys.set_positions(positions.tolist())
-    return _pys.set_positions(positions)
+    positions = _np.array(positions, copy=False, subok=True)
+    positions = positions.flatten()
+    natom = _pys.natom()
+    if len(positions) != natom * 3:
+        raise ValueError('Positions array must have natom*3 elements')
+    return _pys.set_positions(positions.tolist())
 
 def get_positions(as_numpy=False):
     """ Returns the current atomic positions loaded in the sander API
@@ -250,7 +214,7 @@ def get_positions(as_numpy=False):
     global APPLY_UNITS
     positions = _pys.get_positions()
     if as_numpy:
-        positions = np.asarray(positions)
+        positions = _np.asarray(positions)
     if APPLY_UNITS:
         return u.Quantity(positions, u.angstrom)
     return positions
