@@ -1,13 +1,14 @@
 from __future__ import print_function, division, absolute_import
+import sys
 import tempfile
 from parmed.amber import AmberParm, Rst7
 from parmed import unit as u
 from parmed.utils.six import string_types
 import numpy as _np
 
-__all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
-           'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box',
-           'is_setup', 'EnergyTerms']
+#__all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
+#           'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box',
+#           'is_setup', 'EnergyTerms']
 
 try:
     from . import pysander as _pys
@@ -23,14 +24,14 @@ except ImportError:
 APPLY_UNITS = False
 
 # Add some of the pysander members directly to the sander namespace
-InputOptions = _pys.InputOptions
-QmInputOptions = _pys.QmInputOptions
-EnergyTerms = _pys.EnergyTerms
-cleanup = _pys.cleanup
-pme_input = _pys.pme_input
-gas_input = _pys.gas_input
-natom = _pys.natom
-is_setup = _pys.is_setup
+#InputOptions = _pys.InputOptions
+#QmInputOptions = _pys.QmInputOptions
+#EnergyTerms = _pys.EnergyTerms
+#cleanup = _pys.cleanup
+#pme_input = _pys.pme_input
+#gas_input = _pys.gas_input
+#natom = _pys.natom
+#is_setup = _pys.is_setup
 
 # To help with dimensional analysis handling
 def _strip_units(obj):
@@ -61,7 +62,7 @@ def _apply_units_to_struct(struct, unit):
 
 # Use a class instead of a function to work like a context manager. For all
 # intents and purposes, it behaves exactly like a function would
-class setup(object):
+class sander(object):
     """ Sets up a sander calculation. This supports acting like a context
     manager such that the cleanup routine is called upon exiting the context. It
     can also be called as a standalone function.
@@ -114,8 +115,18 @@ class setup(object):
     >>> sander.is_setup()
     True
     """
+    def __init__(self):
+        # Add some of the pysander members directly to the sander namespace
+        self.InputOptions = _pys.InputOptions
+        self.QmInputOptions = _pys.QmInputOptions
+        self.EnergyTerms = _pys.EnergyTerms
+        self.cleanup = _pys.cleanup
+        self.pme_input = _pys.pme_input
+        self.gas_input = _pys.gas_input
+        self.natom = _pys.natom
+        self.is_setup = _pys.is_setup
 
-    def __init__(self, prmtop, coordinates, box, mm_options, qm_options=None):
+    def setup(self, prmtop, coordinates, box, mm_options, qm_options=None):
         # Handle the case where the coordinates are actually a restart file
         if isinstance(coordinates, string_types):
             # This is a restart file name. Parse it and make sure the coordinates
@@ -164,118 +175,127 @@ class setup(object):
         """ Make sure that sander is cleaned up """
         if _pys.is_setup(): _pys.cleanup()
 
-def qm_input():
-    """
-    Returns a populated set of QM input options. Only here for consistency with
-    gas_input and pme_input -- QmInputOptions can be instantiated directly
-    """
-    return QmInputOptions()
+    def qm_input(self):
+        """
+        Returns a populated set of QM input options. Only here for consistency with
+        gas_input and pme_input -- QmInputOptions can be instantiated directly
+        """
+        return QmInputOptions()
 
-def set_positions(positions):
-    """
-    Sets the particle positions of the active system from the passed list of
-    positions. Supports both lists, numpy.ndarray and numpy.ndarray objects
-
-    Parameters
-    ----------
-    positions : array of float
-        The atomic positions. They can have units of length. They can have the
-        shapes (natom*3,) or (natom, 3)
-    """
-    if u.is_quantity(positions):
-        positions = positions.value_in_unit(u.angstroms)
-    # Common input types will have an natom x 3 shape. I can call "flatten" on
-    # numpy arrays to solve this quickly, but in cases where the coordinates
-    # are given as a list (or tuple) of Vec3's (or tuples), this requires
-    # separate handling
-    positions = _np.array(positions, copy=False, subok=True)
-    positions = positions.flatten()
-    natom = _pys.natom()
-    if len(positions) != natom * 3:
-        raise ValueError('Positions array must have natom*3 elements')
-    return _pys.set_positions(positions.tolist())
-
-def get_positions(as_numpy=False):
-    """ Returns the current atomic positions loaded in the sander API
-
-    Parameters
-    ----------
-    as_numpy : bool, optional
-        If True, the positions will be returned as a natom*3-length numpy array.
-        If False (default), it will be returned as a natom*3-length Python list.
-
-    Returns
-    -------
-    positions : array of float
-        The atomic positions as a list (or numpy array if requested). If
-        sander.APPLY_UNITS is True, the return object will be a Quantity with
-        the units chemistry.unit.angstroms
-    """
-    global APPLY_UNITS
-    positions = _pys.get_positions()
-    if as_numpy:
+    @property
+    def positions(self):
+        """ Returns the current atomic positions loaded in the sander API
+    
+        Parameters
+        ----------
+        as_numpy : bool, optional
+            If True, the positions will be returned as a natom*3-length numpy array.
+            If False (default), it will be returned as a natom*3-length Python list.
+    
+        Returns
+        -------
+        positions : array of float
+            The atomic positions as a list (or numpy array if requested). If
+            sander.APPLY_UNITS is True, the return object will be a Quantity with
+            the units chemistry.unit.angstroms
+        """
+        global APPLY_UNITS
+        positions = _pys.get_positions()
         positions = _np.asarray(positions)
-    if APPLY_UNITS:
-        return u.Quantity(positions, u.angstrom)
-    return positions
+        if APPLY_UNITS:
+            return u.Quantity(positions, u.angstrom)
+        return positions
+    
+    @positions.setter
+    def positions(self, positions):
+        """
+        Sets the particle positions of the active system from the passed list of
+        positions. Supports both lists, numpy.ndarray and numpy.ndarray objects
+    
+        Parameters
+        ----------
+        positions : array of float
+            The atomic positions. They can have units of length. They can have the
+            shapes (natom*3,) or (natom, 3)
+        """
+        if u.is_quantity(positions):
+            positions = positions.value_in_unit(u.angstroms)
+        # Common input types will have an natom x 3 shape. I can call "flatten" on
+        # numpy arrays to solve this quickly, but in cases where the coordinates
+        # are given as a list (or tuple) of Vec3's (or tuples), this requires
+        # separate handling
+        positions = _np.array(positions, copy=False, subok=True)
+        positions = positions.flatten()
+        natom = _pys.natom()
+        if len(positions) != natom * 3:
+            raise ValueError('Positions array must have natom*3 elements')
+        return _pys.set_positions(positions.tolist())
+    
+    
+    def energy_forces(self, as_numpy=False):
+        """
+        Returns the energies and forces of the current conformation with the current
+        Hamiltonian.
+    
+        Parameters
+        ----------
+        as_numpy : bool, optional
+            If True, the forces will be returned as a natom*3-length numpy array. If
+            False (default), they will be returned as a natom*3-length Python list.
+    
+        Returns
+        -------
+        energy, forces : EnergyTerms, array of float
+            The energies returned in an EnergyTerms container, and the forces are
+            returned as a natom*3-length list (or numpy array if requested). If
+            sander.APPLY_UNITS is True, the energies will have the units
+            kilocalories_per_mole applied, and forces will have the units
+            kilocalories_per_mole/u.angstroms
+        """
+        global APPLY_UNITS
+        e, f = _pys.energy_forces()
+        if as_numpy:
+            f = _np.asarray(f)
+        if APPLY_UNITS:
+            return (_apply_units_to_struct(e, u.kilocalories_per_mole),
+                    u.Quantity(f, u.kilocalories_per_mole/u.angstroms))
+        return e, f
+    
+    @property
+    def box(self):
+        return None
 
-def energy_forces(as_numpy=False):
-    """
-    Returns the energies and forces of the current conformation with the current
-    Hamiltonian.
+    @box.setter
+    def box(self, a, b, c, alpha, beta, gamma):
+        """ Sets the unit cell dimensions for the current system
+    
+        Parameters
+        ----------
+        a : float
+            Length of the first unit cell vector (can be a unit.Quantity object
+            with dimension length). Unitless input is assumed to be in Angstroms
+        b : float
+            Length of the second unit cell vector (can be a unit.Quantity object
+            with dimension length). Unitless input is assumed to be in Angstroms
+        c : float
+            Length of the third unit cell vector (can be a unit.Quantity object
+            with dimension length). Unitless input is assumed to be in Angstroms
+        alpha : float
+            Angle between vectors b and c (can be a unit.Quantity object with
+            dimension angle). Unitless input is assumed to be in Degrees.
+        beta : float
+            Angle between vectors a and c (can be a unit.Quantity object with
+            dimension angle). Unitless input is assumed to be in Degrees.
+        gamma : float
+            Angle between vectors a and b (can be a unit.Quantity object with
+            dimension angle). Unitless input is assumed to be in Degrees.
+        """
+        if u.is_quantity(a): a = a.value_in_unit(u.angstroms)
+        if u.is_quantity(b): b = b.value_in_unit(u.angstroms)
+        if u.is_quantity(c): c = c.value_in_unit(u.angstroms)
+        if u.is_quantity(alpha): alpha = alpha.value_in_unit(u.degrees)
+        if u.is_quantity(beta): beta = beta.value_in_unit(u.degrees)
+        if u.is_quantity(gamma): gamma = gamma.value_in_unit(u.degrees)
+        _pys.set_box(a, b, c, alpha, beta, gamma)
 
-    Parameters
-    ----------
-    as_numpy : bool, optional
-        If True, the forces will be returned as a natom*3-length numpy array. If
-        False (default), they will be returned as a natom*3-length Python list.
-
-    Returns
-    -------
-    energy, forces : EnergyTerms, array of float
-        The energies returned in an EnergyTerms container, and the forces are
-        returned as a natom*3-length list (or numpy array if requested). If
-        sander.APPLY_UNITS is True, the energies will have the units
-        kilocalories_per_mole applied, and forces will have the units
-        kilocalories_per_mole/u.angstroms
-    """
-    global APPLY_UNITS
-    e, f = _pys.energy_forces()
-    if as_numpy:
-        f = _np.asarray(f)
-    if APPLY_UNITS:
-        return (_apply_units_to_struct(e, u.kilocalories_per_mole),
-                u.Quantity(f, u.kilocalories_per_mole/u.angstroms))
-    return e, f
-
-def set_box(a, b, c, alpha, beta, gamma):
-    """ Sets the unit cell dimensions for the current system
-
-    Parameters
-    ----------
-    a : float
-        Length of the first unit cell vector (can be a unit.Quantity object
-        with dimension length). Unitless input is assumed to be in Angstroms
-    b : float
-        Length of the second unit cell vector (can be a unit.Quantity object
-        with dimension length). Unitless input is assumed to be in Angstroms
-    c : float
-        Length of the third unit cell vector (can be a unit.Quantity object
-        with dimension length). Unitless input is assumed to be in Angstroms
-    alpha : float
-        Angle between vectors b and c (can be a unit.Quantity object with
-        dimension angle). Unitless input is assumed to be in Degrees.
-    beta : float
-        Angle between vectors a and c (can be a unit.Quantity object with
-        dimension angle). Unitless input is assumed to be in Degrees.
-    gamma : float
-        Angle between vectors a and b (can be a unit.Quantity object with
-        dimension angle). Unitless input is assumed to be in Degrees.
-    """
-    if u.is_quantity(a): a = a.value_in_unit(u.angstroms)
-    if u.is_quantity(b): b = b.value_in_unit(u.angstroms)
-    if u.is_quantity(c): c = c.value_in_unit(u.angstroms)
-    if u.is_quantity(alpha): alpha = alpha.value_in_unit(u.degrees)
-    if u.is_quantity(beta): beta = beta.value_in_unit(u.degrees)
-    if u.is_quantity(gamma): gamma = gamma.value_in_unit(u.degrees)
-    _pys.set_box(a, b, c, alpha, beta, gamma)
+sys.modules[__name__] = sander()
