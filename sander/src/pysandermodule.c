@@ -404,6 +404,29 @@ pysander_set_box(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static PyObject*
+pysander_get_box(PyObject *self) {
+
+    double a, b, c, alpha, beta, gamma;
+
+    if (!IS_SETUP) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "No sander system is currently set up!");
+        return NULL;
+    }
+    get_box(&a, &b, &c, &alpha, &beta, &gamma);
+
+    PyObject *ret = PyTuple_New(6);
+    PyTuple_SET_ITEM(ret, 0, PyFloat_FromDouble(a));
+    PyTuple_SET_ITEM(ret, 1, PyFloat_FromDouble(b));
+    PyTuple_SET_ITEM(ret, 2, PyFloat_FromDouble(c));
+    PyTuple_SET_ITEM(ret, 3, PyFloat_FromDouble(alpha));
+    PyTuple_SET_ITEM(ret, 4, PyFloat_FromDouble(beta));
+    PyTuple_SET_ITEM(ret, 5, PyFloat_FromDouble(gamma));
+
+    return ret;
+}
+
 /* Deallocates the memory used by sander so sander can be set up and used again
  */
 static PyObject*
@@ -662,6 +685,13 @@ pysanderMethods[] = {
             "    Angle between sides a and c of the unit cell\n"
             "gamma : float\n"
             "    Angle between sides a and b of the unit cell\n"},
+    { "get_box", (PyCFunction) pysander_get_box, METH_NOARGS,
+            "Gets the box dimensions of the active system.\n"
+            "\n"
+            "Returns\n"
+            "-------\n"
+            "a, b, c, alpha, beta, gamma : float, float, ..., float\n"
+            "    Unit cell dimensions and angles between the vectors\n"},
     { "is_setup", (PyCFunction) pysander_is_setup, METH_NOARGS,
             "Returns True if sander is set up and False otherwise"},
     {NULL}, // sentinel
