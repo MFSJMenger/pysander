@@ -298,5 +298,28 @@ class setup(object):
         """ Make sure that sander is cleaned up """
         if _pys.is_setup(): _pys.cleanup()
 
-    positions = property(fget=get_positions, fset=set_positions)
-    box = property(fget=get_box, fset=set_box)
+    @property
+    def natom(self):
+        return natom()
+
+    @property
+    def positions(self):
+        return get_positions()
+    @positions.setter
+    def positions(self, value):
+        set_positions(value)
+
+    @property
+    def box(self):
+        return get_box()
+    @box.setter
+    def box(self, value):
+        set_box(*value)
+
+    # A sander context is True IFF a system is set up. Otherwise it evaluates to
+    # boolean False -- support both Python 2 and Python 3
+    def __nonzero__(self):
+        return is_setup()
+
+    def __bool__(self):
+        return is_setup()
