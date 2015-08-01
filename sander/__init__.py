@@ -319,6 +319,18 @@ class setup(object):
     def box(self, value):
         set_box(*value)
 
+    def energy_forces(self):
+        """ Computes the energy and forces for the loaded context
+
+        Returns
+        -------
+        ene, frc : EnergyTerms, np.ndarray
+            ene is the struct of energies and frc is a numpy array of shape
+            (natom, 3) with all atomic forces in kcal/mol/A
+        """
+        ene, frc = energy_forces(as_numpy=True)
+        return ene, frc.reshape((self.natom, 3))
+
     # A sander context is True IFF a system is set up. Otherwise it evaluates to
     # boolean False -- support both Python 2 and Python 3
     def __nonzero__(self):
