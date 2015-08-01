@@ -300,17 +300,20 @@ class setup(object):
 
     @property
     def natom(self):
+        """ The number of atoms in the currently set-up system """
         return natom()
 
     @property
     def positions(self):
-        return get_positions()
+        """ The atomic positions in angstroms as a (natom, 3) numpy array """
+        return get_positions(as_numpy=True).reshape((self.natom, 3))
     @positions.setter
     def positions(self, value):
         set_positions(value)
 
     @property
     def box(self):
+        """ The unit cell dimensions (a, b, c, alpha, beta, gamma) """
         return get_box()
     @box.setter
     def box(self, value):
@@ -323,3 +326,12 @@ class setup(object):
 
     def __bool__(self):
         return is_setup()
+
+    def __repr__(self):
+        if not self:
+            return '<SANDER Context; inactive>'
+        has_pbc = all(get_box())
+        if has_pbc:
+            return '<SANDER Context; natom=%d; box=%s>' % (self.natom, self.box)
+        else:
+            return '<SANDER Context; natom=%d; no PBC>' % self.natom
