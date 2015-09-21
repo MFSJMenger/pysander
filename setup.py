@@ -11,6 +11,10 @@ assert amberhome is not None
 if amberhome is None:
     raise RuntimeError('AMBERHOME is not set! Cannot compile pysander')
 
+if sys.platform == 'darwin':
+    os.environ['CXX'] = 'clang++'
+    os.environ['CC'] = 'clang'
+
 packages = ['sander', 'sanderles']
 
 os.system('/bin/rm -fr sanderles')
