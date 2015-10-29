@@ -28,6 +28,7 @@ typedef struct {
     PyObject *cut;      // double
     PyObject *dielc;    // double
     PyObject *rdt;      // double
+    PyObject *fswitch;  // double
 } pysander_InputOptions;
 
 static void
@@ -53,6 +54,7 @@ pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->cut);
     Py_DECREF(self->dielc);
     Py_DECREF(self->rdt);
+    Py_DECREF(self->fswitch);
     PY_DESTROY_TYPE;
 }
 
@@ -82,6 +84,7 @@ pysander_InputOptions_new(PyTypeObject *type) {
         self->cut = PyFloat_FromDouble(0.0);
         self->dielc = PyFloat_FromDouble(0.0);
         self->rdt = PyFloat_FromDouble(0.0);
+        self->fswitch = PyFloat_FromDouble(0.0);
     }
 
     return (PyObject *) self;
@@ -132,6 +135,9 @@ static PyMemberDef pysander_InputOptionMembers[] = {
     {"rdt", T_OBJECT_EX, offsetof(pysander_InputOptions, rdt), 0,
                 "Cutoff determining when only a single effective GB radius will\n"
                 "be used when computing energies with LES"},
+    {"fswitch", T_OBJECT_EX, offsetof(pysander_InputOptions, fswitch), 0,
+                "Distance at which the force-switch is turned on for Lennard-Jones\n"
+                "interactions"},
     {NULL} /* sentinel */
 };
 

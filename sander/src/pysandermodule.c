@@ -113,6 +113,7 @@ pysander_setup(PyObject *self, PyObject *args) {
     input.cut = PyFloat_AsDouble(mm_inp->cut);
     input.dielc = PyFloat_AsDouble(mm_inp->dielc);
     input.rdt = PyFloat_AsDouble(mm_inp->rdt);
+    input.fswitch = PyFloat_AsDouble(mm_inp->fswitch);
 
     if (arg5) {
         qm_inp = (pysander_QmInputOptions *) arg5;
@@ -488,6 +489,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ASSIGN_FLOAT(cut);
     ASSIGN_FLOAT(dielc);
     ASSIGN_FLOAT(rdt);
+    ASSIGN_FLOAT(fswitch);
 
     return (PyObject *) ret;
 }
@@ -525,6 +527,7 @@ pysander_pme_input(PyObject *self) {
     ASSIGN_FLOAT(cut);
     ASSIGN_FLOAT(dielc);
     ASSIGN_FLOAT(rdt);
+    ASSIGN_FLOAT(fswitch);
 
     return (PyObject *) ret;
 }
