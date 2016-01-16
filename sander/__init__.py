@@ -4,6 +4,7 @@ from parmed.amber import AmberParm, Rst7
 from parmed import unit as u
 from parmed.utils.six import string_types
 import numpy as _np
+from sys import stderr as _stderr
 
 __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
            'gas_input', 'natom', 'energy_forces', 'set_positions', 'set_box',
@@ -12,11 +13,10 @@ __all__ = ['InputOptions', 'QmInputOptions', 'setup', 'cleanup', 'pme_input',
 try:
     from . import pysander as _pys
 except ImportError:
-    raise ImportError('Could not import the compiled Python-sander interface. '
-                      'Make sure you add $AMBERHOME/lib to LD_LIBRARY_PATH or '
-                      'Make sure you have the Python development libraries '
-                      'installed and try rebuilding the serial installation '
-                      'of AMBER.')
+    _stderr.write('Could not import the compiled Python-sander interface. Make '
+                  'sure you have the Python development libraries installed '
+                  'and that you have sourced amber.sh or amber.csh')
+    raise
 
 # If set to True, units are applied to the resulting output. Otherwise,
 # everything is left unitless (in AKMA units)
