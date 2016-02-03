@@ -2,7 +2,6 @@
 from distutils.core import setup, Extension
 import os
 from os.path import join
-import shutil
 import sys
 
 amberhome = os.getenv('AMBERHOME')
@@ -18,7 +17,7 @@ if sys.platform == 'darwin':
 packages = ['sander', 'sanderles']
 
 os.system('/bin/rm -fr sanderles')
-shutil.copytree('sander', 'sanderles')
+os.system('cp -r sander sanderles')
 incdir = [join(amberhome, 'include'),
           join(amberhome, 'AmberTools', 'src', 'include')]
 libdir = [join(amberhome, 'lib')]
