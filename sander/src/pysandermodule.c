@@ -41,6 +41,7 @@ pysander_setup(PyObject *self, PyObject *args) {
     char *prmtop;
     double *coordinates;
     double box[6];
+    size_t i;
     PyObject *arg2, *arg3, *arg4, *arg5;
     arg2 = NULL; arg3 = NULL; arg4 = NULL; arg5 = NULL;
 
@@ -105,6 +106,7 @@ pysander_setup(PyObject *self, PyObject *args) {
     input.jfastw = (int) PyInt_AsLong(mm_inp->jfastw);
     input.ntf = (int) PyInt_AsLong(mm_inp->ntf);
     input.ntc = (int) PyInt_AsLong(mm_inp->ntc);
+    input.ntr = (int) PyInt_AsLong(mm_inp->ntr);
 
     input.extdiel = PyFloat_AsDouble(mm_inp->extdiel);
     input.intdiel = PyFloat_AsDouble(mm_inp->intdiel);
@@ -114,6 +116,22 @@ pysander_setup(PyObject *self, PyObject *args) {
     input.dielc = PyFloat_AsDouble(mm_inp->dielc);
     input.rdt = PyFloat_AsDouble(mm_inp->rdt);
     input.fswitch = PyFloat_AsDouble(mm_inp->fswitch);
+    input.restraint_wt = PyFloat_AsDouble(mm_inp->restraint_wt);
+
+    if (!PyObject_IS_STRING(mm_inp->restraintmask)) {
+        PyErr_SetString(PyExc_ValueError, "restraintmask must be a string");
+        return NULL;
+    }
+    if (PyString_Size(mm_inp->restraintmask) >= 256) {
+        PyErr_SetString(PyExc_ValueError,
+                        "restraintmask must be smaller than 256 characters");
+        return NULL;
+    } else {
+        strncpy(input.restraintmask, PyString_AsString(mm_inp->restraintmask),
+                PyString_Size(mm_inp->restraintmask));
+        for (i = PyString_Size(mm_inp->restraintmask); i < 256; i++)
+            input.restraintmask[i] = ' ';
+    }
 
     if (arg5) {
         qm_inp = (pysander_QmInputOptions *) arg5;
@@ -179,7 +197,6 @@ pysander_setup(PyObject *self, PyObject *args) {
 
 
         // Error checking on the string input options
-        size_t i;
         if (!PyObject_IS_STRING(qm_inp->qmmask)) {
             PyErr_SetString(PyExc_ValueError,
                             "qmmask must be a string");
@@ -282,7 +299,7 @@ pysander_setup(PyObject *self, PyObject *args) {
         } else {
             Py_ssize_t i;
             for (i = 0; i < PyList_Size(qm_inp->iqmatoms); i++) {
-                qm_input.iqmatoms[i] = (int) 
+                qm_input.iqmatoms[i] = (int)
                         PyInt_AsLong(PyList_GetItem(qm_inp->iqmatoms, i));
             }
             for (i = PyList_Size(qm_inp->iqmatoms); i < MAX_QUANTUM_ATOMS; i++)
@@ -325,13 +342,13 @@ pysander_setup(PyObject *self, PyObject *args) {
         }
     }
 
-    Py_ssize_t i;
+    Py_ssize_t ii;
     coordinates = (double *)malloc(PyList_Size(arg2)*sizeof(double));
     // Fill up the positions and box
-    for (i = 0; i < PyList_Size(arg2); i++)
-        coordinates[i] = PyFloat_AsDouble(PyList_GetItem(arg2, i));
-    for (i = 0; i < 6; i++)
-        box[i] = PyFloat_AsDouble(PyList_GetItem(arg3, i));
+    for (ii = 0; ii < PyList_Size(arg2); ii++)
+        coordinates[ii] = PyFloat_AsDouble(PyList_GetItem(arg2, ii));
+    for (ii = 0; ii < 6; ii++)
+        box[ii] = PyFloat_AsDouble(PyList_GetItem(arg3, ii));
 
     if (sander_setup(prmtop, coordinates, box, &input, &qm_input)) {
         free(coordinates);
@@ -481,6 +498,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ASSIGN_INT(jfastw);
     ASSIGN_INT(ntf);
     ASSIGN_INT(ntc);
+    ASSIGN_INT(ntr);
     // Floats
     ASSIGN_FLOAT(extdiel);
     ASSIGN_FLOAT(intdiel);
@@ -490,6 +508,7 @@ pysander_gas_input(PyObject *self, PyObject *args) {
     ASSIGN_FLOAT(dielc);
     ASSIGN_FLOAT(rdt);
     ASSIGN_FLOAT(fswitch);
+    ASSIGN_FLOAT(restraint_wt);
 
     return (PyObject *) ret;
 }
@@ -519,6 +538,7 @@ pysander_pme_input(PyObject *self) {
     ASSIGN_INT(jfastw);
     ASSIGN_INT(ntf);
     ASSIGN_INT(ntc);
+    ASSIGN_INT(ntr);
     // Floats
     ASSIGN_FLOAT(extdiel);
     ASSIGN_FLOAT(intdiel);
@@ -528,6 +548,7 @@ pysander_pme_input(PyObject *self) {
     ASSIGN_FLOAT(dielc);
     ASSIGN_FLOAT(rdt);
     ASSIGN_FLOAT(fswitch);
+    ASSIGN_FLOAT(restraint_wt);
 
     return (PyObject *) ret;
 }

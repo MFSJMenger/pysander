@@ -20,6 +20,7 @@ typedef struct {
     PyObject *jfastw;   // int
     PyObject *ntf;      // int
     PyObject *ntc;      // int
+    PyObject *ntr;      // int
 
     PyObject *extdiel;  // double
     PyObject *intdiel;  // double
@@ -29,6 +30,9 @@ typedef struct {
     PyObject *dielc;    // double
     PyObject *rdt;      // double
     PyObject *fswitch;  // double
+    PyObject *restraint_wt; // double
+
+    PyObject *restraintmask; // string
 } pysander_InputOptions;
 
 static void
@@ -46,6 +50,7 @@ pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->jfastw);
     Py_DECREF(self->ntf);
     Py_DECREF(self->ntc);
+    Py_DECREF(self->ntr);
 
     Py_DECREF(self->extdiel);
     Py_DECREF(self->intdiel);
@@ -55,9 +60,18 @@ pysander_InputOptions_dealloc(pysander_InputOptions* self) {
     Py_DECREF(self->dielc);
     Py_DECREF(self->rdt);
     Py_DECREF(self->fswitch);
+    Py_DECREF(self->restraint_wt);
+
+    Py_DECREF(self->restraintmask);
+
     PY_DESTROY_TYPE;
 }
 
+#if PY_MAJOR_VERSION >= 3
+#   define ASSIGN_STRING(var, val) self->var = PyUnicode_FromString(val)
+#else
+#   define ASSIGN_STRING(var, val) self->var = PyString_FromString(val)
+#endif
 static PyObject *
 pysander_InputOptions_new(PyTypeObject *type) {
     pysander_InputOptions *self;
@@ -76,6 +90,7 @@ pysander_InputOptions_new(PyTypeObject *type) {
         self->jfastw = PyInt_FromLong(0);
         self->ntf = PyInt_FromLong(0);
         self->ntc = PyInt_FromLong(0);
+        self->ntr = PyInt_FromLong(0);
 
         self->extdiel = PyFloat_FromDouble(0.0);
         self->intdiel = PyFloat_FromDouble(0.0);
@@ -85,6 +100,9 @@ pysander_InputOptions_new(PyTypeObject *type) {
         self->dielc = PyFloat_FromDouble(0.0);
         self->rdt = PyFloat_FromDouble(0.0);
         self->fswitch = PyFloat_FromDouble(0.0);
+        self->restraint_wt = PyFloat_FromDouble(0.0);
+
+        ASSIGN_STRING(restraintmask, "");
     }
 
     return (PyObject *) self;
@@ -119,6 +137,8 @@ static PyMemberDef pysander_InputOptionMembers[] = {
                 "Which (if any) potential energy terms are omitted"},
     {"ntc", T_OBJECT_EX, offsetof(pysander_InputOptions, ntc), 0,
                 "Flag to set whether or not SHAKE is used to constrain bonds"},
+    {"ntr", T_OBJECT_EX, offsetof(pysander_InputOptions, ntr), 0,
+                "Flag to set whether positional cartesian restraints are used"},
 
     {"extdiel", T_OBJECT_EX, offsetof(pysander_InputOptions, extdiel), 0,
                 "External dielectric constant for GB"},
@@ -136,8 +156,14 @@ static PyMemberDef pysander_InputOptionMembers[] = {
                 "Cutoff determining when only a single effective GB radius will\n"
                 "be used when computing energies with LES"},
     {"fswitch", T_OBJECT_EX, offsetof(pysander_InputOptions, fswitch), 0,
-                "Distance at which the force-switch is turned on for Lennard-Jones\n"
-                "interactions"},
+                "Distance at which the force-switch is turned on for Lennard-"
+                 "Jones\ninteractions"},
+    {"restraint_wt", T_OBJECT_EX, offsetof(pysander_InputOptions, restraint_wt), 0,
+                "Force constant (kcal/mol/A^2) for positional restraints"},
+
+    {"restraintmask", T_OBJECT_EX, offsetof(pysander_InputOptions, restraintmask), 0,
+                "Mask string selecting the atoms to restrain positions of"},
+
     {NULL} /* sentinel */
 };
 
@@ -365,14 +391,14 @@ static PyTypeObject pysander_EnergyTermsType = {
     0,                              // tp_as_number
     0,                              // tp_as_sequence
     0,                              // tp_as_mapping
-    0,                              // tp_hash 
+    0,                              // tp_hash
     0,                              // tp_call
     0,                              // tp_str
     0,                              // tp_getattro
     0,                              // tp_setattro
     0,                              // tp_as_buffer
     Py_TPFLAGS_DEFAULT,             // tp_flags
-    "List of sander energy terms",  // tp_doc 
+    "List of sander energy terms",  // tp_doc
     0,		                        // tp_traverse
     0,		                        // tp_clear
     0,		                        // tp_richcompare
@@ -390,7 +416,7 @@ static PyTypeObject pysander_EnergyTermsType = {
     0,                              // tp_init
     0,                              // tp_alloc
     (newfunc)pysander_EnergyTerms_new,// tp_new
-    
+
 };
 
 // QM/MM options
@@ -466,13 +492,7 @@ typedef struct {
 
 #define ASSIGN_FLOAT(var) self->var = PyFloat_FromDouble(inp.var)
 #define ASSIGN_LIST(var, len) self->var = PyList_New(len)
-#if PY_MAJOR_VERSION >= 3
-#   define ASSIGN_INT(var) self->var = PyInt_FromLong(inp.var)
-#   define ASSIGN_STRING(var, val) self->var = PyUnicode_FromString(val)
-#else
-#   define ASSIGN_INT(var) self->var = PyLong_FromLong(inp.var)
-#   define ASSIGN_STRING(var, val) self->var = PyString_FromString(val)
-#endif
+#define ASSIGN_INT(var) self->var = PyLong_FromLong(inp.var)
 
 static PyObject *
 pysander_QmInputOptions_new(PyTypeObject *type) {
