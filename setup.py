@@ -38,7 +38,7 @@ try:
                                      join(incdir[1], 'CompatibilityMacros.h')],
                             define_macros=[('LES', None)])
     setup(name='sander',
-          version="15.0",
+          version="16.0",
           license='GPL v2 or later',
           author='Jason Swails',
           author_email='jason.swails -at- gmail.com',
